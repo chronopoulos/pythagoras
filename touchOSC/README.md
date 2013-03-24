@@ -1,33 +1,10 @@
-pythagoras
-==========
+This is the TouchOSC version of pythagoras. As of 2013-03-23, it contains most of the functionality
+of the main version, and can be controlled via the mobile app TouchOSC, which is available on
+Android and iOS. Run it as you would the main version:
 
-pythagoras is a library for experimentation with musical synthesis and algorithmic composition. It is written in Python, and uses the pyo libary as a sound engine:
+$ python pythagoras.py <debug> <jack>
 
-https://code.google.com/p/pyo/
+and connect via the port numbers and IP addresses in pythagoras.py
 
-It also serves as the audio backend for Audiocomp, a web server and ClojureScript application designed for networking musical collaborations:
-
-https://bitbucket.org/bburdette/audiocomp
-
-Dependencies for pythagoras include:
-
-python-pyo  
-python-liblo  
-python-numpy  
-python-blist  
-
-To run pythagoras, just do:
-
-$ cd src  
-$ python pythagoras.py
-
-If you want to run with Jack connectivity, first start jackd, then:
-
-$ python pythagoras.py jack
-
-If you want to use the default sample packs defined in samplepacks.py, they are available here:
-
-https://dl.dropbox.com/u/3020732/samples.tar.gz
-
-____
-Chris Chronopoulos, 2013-03-19
+___
+Chris Chronopoulos, 2013-03-23
