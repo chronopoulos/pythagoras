@@ -1,12 +1,11 @@
 import pyo, liblo
-import mappings as mapp
 import interfaces as ifx
 import instruments as inst
 import samplepacks as smp
 import scales, synths
 import sys
 
-modules = [mapp, ifx, inst, smp, scales, synths]
+modules = [ifx, inst, smp, scales, synths]
 
 class JamServer():
 
