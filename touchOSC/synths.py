@@ -97,9 +97,12 @@ class FM():
 
    def __init__(self):
       self.trig = pyo.Trig()
+      """
       self.envTableList = [(0,.5)] + [(i*8192/15,1./(i+1)) for i in range(15)]
       self.envTable = pyo.CurveTable(self.envTableList)
       self.env = pyo.TrigEnv(self.trig, table=self.envTable, dur=0.6, mul=0.)
+      """
+      self.env = pyo.Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=2, mul=.5)
       self.fm = pyo.FM(carrier=[0.,0.], mul=self.env[0])
       self.output = self.fm.out()
 
@@ -138,6 +141,7 @@ class FM():
       self.setDur(dur)
       # TODO: make these setter methods more efficient
       #  they're being called more often than they need to be
-      self.trig.play()
+      # self.trig.play()
+      self.env.play()
 
 
