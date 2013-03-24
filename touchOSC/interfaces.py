@@ -73,8 +73,9 @@ class Sequencer():
 
    def handleXY(self, pathlist, arg):
       if debug: print 'Sequencer, handleXY: ', pathlist, arg
-      print 'nothing here yet'
-      # self.noteVol[note] = vol
+      x = arg[1]
+      y = arg[0]
+      self.instrument.handleXY(x,y)
 
    def followMetro(self, metro):
       self.metro = metro

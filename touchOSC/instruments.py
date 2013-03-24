@@ -29,6 +29,10 @@ class Sampler():
       self.notes[note].setMul(amp)
       self.notes[note].out()
 
+   def handleXY(self, x, y):
+      if debug: print 'Sampler, handleXY: ', x, y
+      print 'nothing here yet'
+
 class PolySynth():
    """
    Polyphonic Synth class
@@ -46,3 +50,8 @@ class PolySynth():
       f = pyo.midiToHz(self.key+self.scale(note))
       vn = self.poly.request()
       self.voices[vn].play(f, amp)
+
+   def handleXY(self, x, y):
+      if debug: print 'PolySynth, handleXY: ', x, y
+      for voice in self.voices:
+         voice.handleXY(x,y)

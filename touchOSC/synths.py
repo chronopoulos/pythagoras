@@ -49,7 +49,22 @@ class Additive():
       self.spectrum = [1.]+[0.]*15  # 16 total
       self.waveform = pyo.HarmTable(self.spectrum)
       self.osc = pyo.Osc(self.waveform, freq=[0.,0.], mul=self.env[0])
-      self.output = self.osc.out()
+      self.filter = pyo.Biquad(self.osc, freq=[300.,300.], type=2, q=2.)
+      self.output = self.filter.out()
+
+   def handleXY(self, x, y):
+      if debug: print 'Additive, handleXY: ', x, y
+      self.filter.setFreq(x*1500.)
+      self.filter.setQ(1.+y*3.)
+
+   def handleRow2(self, slider, value):
+      harmonic = slider
+      coeff = value
+      self.updateSpectrum(harmonic, coeff)
+
+   def handleDFT(self, state):
+      if state==1:
+         self.updateWaveform()
 
    def setFreq(self, f):
       self.osc.setFreq([f,f])
