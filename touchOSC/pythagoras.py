@@ -57,6 +57,7 @@ if __name__ == '__main__':
    jamserver.addInterface(ifx.Sequencer(8001, liblo.Address('192.168.1.125',9001), inst.Sampler(smp.linndrum), maxVol=0.2))
    jamserver.addInterface(ifx.Sequencer(8002, liblo.Address('192.168.1.125',9002), inst.PolySynth(voice=synths.FM), maxVol=0.25))
    jamserver.addInterface(ifx.Keyboard(8003, liblo.Address('192.168.1.125',9003), inst.PolySynth(voice=synths.FM, scale=scales.chromatic), maxVol=0.25))
+   jamserver.addInterface(ifx.Sequencer(8004, liblo.Address('192.168.1.125',9004), inst.Arpeggiator(voice=synths.FM), maxVol=0.25))
 
 
 ###########

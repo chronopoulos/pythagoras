@@ -55,3 +55,44 @@ class PolySynth():
       if debug: print 'PolySynth, handleXY: ', x, y
       for voice in self.voices:
          voice.handleXY(x,y)
+
+   def handleFader2(self, value):
+      if debug: print 'PolySynth, handleFader2: ', value
+      print 'nothing here yet'
+
+
+def triad(i):
+   j=i%3
+   k=i//3
+   notes = [0,2,4]
+   return k*7 + notes[j]
+
+class Arpeggiator():
+   """
+   Arpeggiator class
+   """
+
+   def __init__(self, voice=synths.Square, order=4, key=60, scale=scales.major, chord=0):
+      self.voices = []
+      for i in range(order):
+         self.voices.append(voice())
+      self.poly = Poly(self.voices)
+      self.key = 60
+      self.scale = scale
+      self.chord = chord
+
+   def play(self, note, amp):
+      f = pyo.midiToHz(self.key+self.scale(self.chord+triad(note)))
+      vn = self.poly.request()
+      self.voices[vn].play(f, amp)
+
+   def handleFader2(self, value):
+      if debug: print 'Arpeggiator, handleFader2: ', value
+      chord = int(value*8)
+      print chord
+      self.chord = chord
+
+   def handleXY(self, x, y):
+      if debug: print 'PolySynth, handleXY: ', x, y
+      for voice in self.voices:
+         voice.handleXY(x,y)

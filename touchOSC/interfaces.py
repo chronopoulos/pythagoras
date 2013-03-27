@@ -25,6 +25,8 @@ class Sequencer():
       self.stepVol = [1. for i in range(self.nx)]
       self.noteVol = [1. for i in range(self.ny)]
       self.bindings = {
+         ('1', 'fader1') : self.handleFader1,
+         ('1', 'fader2') : self.handleFader2,
          ('1', 'toggle1') : self.handleToggle1,
          ('2', 'multitoggle') : self.handleMultiToggle,
          ('2', 'multifader') : self.handleMultiFader,
@@ -76,6 +78,15 @@ class Sequencer():
       x = arg[1]
       y = arg[0]
       self.instrument.handleXY(x,y)
+
+   def handleFader1(self, pathlist, arg):
+      if debug: print 'Sequencer, handleFader1: ', pathlist, arg
+      bpm = arg[0]*40+100.
+      self.metro.setTime(15./bpm)
+
+   def handleFader2(self, pathlist, arg):
+      if debug: print 'Sequencer, handleFader2: ', pathlist, arg
+      self.instrument.handleFader2(arg[0])
 
    def followMetro(self, metro):
       self.metro = metro
