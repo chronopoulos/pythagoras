@@ -17,7 +17,7 @@ class Sequencer():
       self.instrument = instrument
       self.nx = loop
       self.ny = nnotes
-      self.conway = conway
+      self.conway = False
       self.maxVol = maxVol
       self.step = 0
       self.gridState = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))

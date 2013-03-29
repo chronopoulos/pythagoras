@@ -14,16 +14,17 @@ class Sequencer():
       self.instrument = instrument
       self.nx = loop
       self.ny = nnotes
-      self.conway = conway
+      self.conway = False
       self.maxVol = maxVol
       self.step = 0
       self.gridState = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.diff = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.stepVol = [1. for i in range(self.nx)]
       self.noteVol = [1. for i in range(self.ny)]
+      self.broadcast = liblo.Address(9002)
 
-   def setUI(self, ui):
-      self.ui = ui
+   def setName(self, name):
+      self.name = name
 
    def followMetro(self, metro):
       self.metro = metro
@@ -67,9 +68,17 @@ class Sequencer():
                   self.diff[i,j]=0  # cell remains dead
       # apply changes
       self.gridState += self.diff
-      self.sendDiffTouchOSC()
+      self.sendDiff_sequential(self.webapp)
 
-   def sendDiff(self):
+   def sendDiff_sequential(self, address):
+      xwhere, ywhere = np.where(self.diff != 0)
+      n = len(xwhere)
+      if n>0:
+         for i in range(n):
+            value = int(self.diff[xwhere[i],ywhere[i]]==1)
+            liblo.send(address, self.name+'/button/SEQ/'+str(ywhere[i]+1)+'/'+str(xwhere[i]+1), value)
+
+   def sendDiff_bundle(self):
       xwhere, ywhere = np.where(self.diff != 0)
       n = len(xwhere)
       if n>0:
@@ -79,7 +88,7 @@ class Sequencer():
             difflist += [xwhere[i],ywhere[i],value]
          liblo.send(self.interfaceAddress, '/mutation/diff', difflist)
 
-   def sendDiffTouchOSC(self):
+   def sendDiff_sequential(self):
       xwhere, ywhere = np.where(self.diff != 0)
       n = len(xwhere)
       if n>0:

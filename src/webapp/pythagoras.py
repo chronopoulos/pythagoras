@@ -12,6 +12,7 @@ class Player():
    def __init__(self, name, interface):
       self.name = name
       self.interface = interface
+      self.interface.setName(self.name)
       self.controlType = {
          'button' : self.handleButton,
          'slider' : self.handleSlider,
@@ -40,6 +41,8 @@ class Player():
          self.interface.updateGridState(step, note, state)
       elif pathlist[2]=='DFT':
          self.interface.instrument.handleDFT(arg[0])
+      elif pathlist[2]=='conway':
+         self.interface.conway = (arg[0]==1)
 
    def handleSlider(self, pathlist, arg):
       if debug: print 'WebApp2Sequencer, handleSlider: ', pathlist, arg
