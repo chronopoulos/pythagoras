@@ -59,7 +59,8 @@ class Player():
       elif pathlist[2]=='H':
          note = int(pathlist[3])-1
          vol = arg[0]
-         print 'about to update notevol with: ', note, vol
+	 if debug:
+	   print 'about to update notevol with: ', note, vol
          self.interface.updateNoteVol(note, vol)
 
 
@@ -125,7 +126,7 @@ if __name__ == '__main__':
    jamserver.addPlayer(Player('rhodes', ix.Sequencer(inst.Sampler(smp.rhodes), maxVol=0.15)))
    jamserver.addPlayer(Player('chimes', ix.Sequencer(inst.Sampler(smp.chimes), maxVol=0.15)))
    jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72), maxVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=48), maxVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24), maxVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), maxVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), maxVol=0.25, nnotes=16)))
 
