@@ -21,7 +21,7 @@ class Sequencer():
       self.diff = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.stepVol = [1. for i in range(self.nx)]
       self.noteVol = [1. for i in range(self.ny)]
-      self.webapp = liblo.Address(9002)
+      self.broadcast = liblo.Address(9002)
 
    def setName(self, name):
       self.name = name
@@ -68,7 +68,7 @@ class Sequencer():
                   self.diff[i,j]=0  # cell remains dead
       # apply changes
       self.gridState += self.diff
-      self.sendDiff_sequential(self.webapp)
+      self.sendDiff_sequential(self.broadcast)
 
    def sendDiff_sequential(self, address):
       xwhere, ywhere = np.where(self.diff != 0)
@@ -87,15 +87,6 @@ class Sequencer():
             value = int(self.diff[xwhere[i],ywhere[i]]==1)
             difflist += [xwhere[i],ywhere[i],value]
          liblo.send(self.interfaceAddress, '/mutation/diff', difflist)
-
-   def sendDiff_sequential(self):
-      xwhere, ywhere = np.where(self.diff != 0)
-      n = len(xwhere)
-      if n>0:
-         difflist = []
-         for i in range(n):
-            value = int(self.diff[xwhere[i],ywhere[i]]==1)
-            liblo.send(self.ui, '/2/multitoggle/'+str(ywhere[i]+1)+'/'+str(xwhere[i]+1), value)
 
    def updateGridState(self, step, note, state):
       if debug: print 'Sequencer, updateGridState', step, note, state
