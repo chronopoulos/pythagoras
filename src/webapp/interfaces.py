@@ -21,7 +21,7 @@ class Sequencer():
       self.diff = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.stepVol = [1. for i in range(self.nx)]
       self.noteVol = [1. for i in range(self.ny)]
-      self.broadcast = liblo.Address(9002)
+      self.webapp = liblo.Address(9002)
 
    def setName(self, name):
       self.name = name
