@@ -43,7 +43,7 @@ class PolySynth():
       for i in range(order):
          self.voices.append(voice())
       self.poly = Poly(self.voices)
-      self.key = 60
+      self.key = key
       self.scale = scale
 
    def play(self, note, amp):
@@ -77,7 +77,7 @@ class Arpeggiator():
       for i in range(order):
          self.voices.append(voice())
       self.poly = Poly(self.voices)
-      self.key = 60
+      self.key = key
       self.scale = scale
       self.chord = chord
 
