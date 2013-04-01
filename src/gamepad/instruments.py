@@ -10,10 +10,11 @@ class Drone():
 
    def __init__(self, freq, metro_accu, verbose=False):
       self.freqs = [i*freq for i in range(1,5)]
-      self.ratios = [8,4,2,1]
+      self.ratios = [5,4,2,2]
       self.indices = [0]*4
-      self.muls = [0.25, 0.15, 0.10, 0.8]
-      self.pos = [0]*4
+      self.muls = [0.15, 0.15, 0.30, 0.22]
+      self.dindices = [0]*4
+      self.dmuls = [0]*4
       self.voices = []
       for i in range(4):
          j=i+1
@@ -24,41 +25,44 @@ class Drone():
          self.voices.append(voice)
       self.callback = pyo.TrigFunc(metro_accu, self.update)
       self.ticker = 0
-      self.speed=1./50
+      self.jspeed=1./50
+      self.dspeed=1./100
       self.verbose = verbose
       self.pressed = sortedset()
 
    def update(self):
       for i in range(4):
-         self.indices[i] += self.pos[i]
+         self.indices[i] += self.dindices[i]
+         self.muls[i] += self.dmuls[i]
          self.voices[i].setIndex(self.indices[i])
-      if self.verbose: print 'Indices: ', self.indices
+         self.voices[i].setMul(self.muls[i])
+      if self.verbose: print 'Indices, Muls, Ratios: ', self.indices, self.muls, self.ratios
 
    def handle_LJLR(self, value):
       if debug: print 'Drone, handle_LJLR: ', value
-      self.pos[0] = value*self.speed
+      self.dindices[0] = value*self.jspeed
 
    def handle_LJUD(self, value):
       if debug: print 'Drone, handle_LJUD: ', value
-      self.pos[1] = value*self.speed
+      self.dindices[1] = value*self.jspeed
 
    def handle_RJLR(self, value):
       if debug: print 'Drone, handle_RJLR: ', value
-      self.pos[2] = value*self.speed
+      self.dindices[2] = value*self.jspeed
 
    def handle_RJUD(self, value):
       if debug: print 'Drone, handle_RJUD: ', value
-      self.pos[3] = value*self.speed
+      self.dindices[3] = value*self.jspeed
 
    def handle_L1(self, *args):
       if debug: print 'Drone, handle_L1', args
       for i in range(2):
-         self.pos[i] = -self.indices[i]*self.speed
+         self.dindices[i] = -self.indices[i]*self.jspeed
 
    def handle_R1(self, *args):
       if debug: print 'Drone, handle_R1', args
       for i in range(2,4):
-         self.pos[i] = -self.indices[i]*self.speed
+         self.dindices[i] = -self.indices[i]*self.jspeed
 
    def handle_L2(self, *args):
       if debug: print 'Drone, handle_L2', args
@@ -111,9 +115,7 @@ class Drone():
    def handle_DPUD(self, value):
       if debug: print 'Drone, handle_DPUD: ', value
       for i in self.pressed:
-         self.muls[i] += value/100.
-         self.voices[i].setMul(self.muls[i])
-      print 'New muls: ', self.muls
+         self.dmuls[i] = value*self.dspeed
       
 
 

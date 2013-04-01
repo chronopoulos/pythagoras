@@ -222,7 +222,7 @@ if __name__=='__main__':
     controller = Gamepad()
 
     # Drone instrument
-    drone = inst.Drone(27.5, metro_accu, verbose=verbose)
+    drone = inst.Drone(50, metro_accu, verbose=verbose)
     controller.callback_LJLR = drone.handle_LJLR
     controller.callback_LJUD = drone.handle_LJUD
     controller.callback_RJLR = drone.handle_RJLR
