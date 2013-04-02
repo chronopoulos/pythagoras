@@ -2,19 +2,73 @@ import pyo
 import instruments as inst
 import numpy as np
 from blist import sortedset
+import random
+from voices import FM
+import scales
+from poly import Poly
+
+class Melodizer():
+   """
+   Arpeggiator class
+   """
+
+   def __init__(self, globalMetro, key=60, scale=scales.major):
+      self.voices = []
+      for i in range(4):
+         self.voices.append(FM())
+      self.poly = Poly(self.voices)
+      self.key = key
+      self.scale = scale
+      self.callback = pyo.TrigFunc(globalMetro, self.playNext)
+      self.last = 0
+      self.jump = [-2,-1,0,1,2]
+
+   def playNext(self):
+      current = self.last + random.choice(self.jump)
+      freq = pyo.midiToHz(self.key+self.scale(current))
+      self.play(freq, 0.25)
+      self.last = current
+
+   def play(self, freq, amp):
+      vn = self.poly.request()
+      self.voices[vn].play(freq, amp)
+
+   def handleFader2(self, value):
+      if debug: print 'Arpeggiator, handleFader2: ', value
+      chord = int(value*8)
+      print chord
+      self.chord = chord
+
+   def handleXY(self, x, y):
+      if debug: print 'PolySynth, handleXY: ', x, y
+      for voice in self.voices:
+         voice.handleXY(x,y)
+
+
+class RandomTick():
+   def __init__(self, globalMetro):
+      self.callback = pyo.TrigFunc(globalMetro, self.maybeplay)
+      self.sample = pyo.SfPlayer('../../samples/drums/acetone/PERC6.WAV', speed=[1,1], mul=0.1)
+
+   def maybeplay(self):
+      if random.random()>0.5:
+         self.sample.out()
 
 class Drone():
    """
    Drone class
    """
 
-   def __init__(self, freq, metro_accu, verbose=False):
-      self.freqs = [i*freq for i in range(1,5)]
+   def __init__(self, key, metro_accu, verbose=False):
+      fund = pyo.midiToHz(key)
+      self.freqs = [i*fund for i in range(1,5)]
       self.ratios = [5,4,2,2]
       self.indices = [0]*4
       self.muls = [0.15, 0.15, 0.30, 0.22]
+      self.muls = [mul/2 for mul in self.muls]
       self.dindices = [0]*4
       self.dmuls = [0]*4
+      self.homewardBound = [False]*4
       self.voices = []
       for i in range(4):
          j=i+1
@@ -32,6 +86,8 @@ class Drone():
 
    def update(self):
       for i in range(4):
+         if self.homewardBound[i]:
+            self.dindices[i] = -self.indices[i]*self.jspeed
          self.indices[i] += self.dindices[i]
          self.muls[i] += self.dmuls[i]
          self.voices[i].setIndex(self.indices[i])
@@ -40,19 +96,35 @@ class Drone():
 
    def handle_LJLR(self, value):
       if debug: print 'Drone, handle_LJLR: ', value
-      self.dindices[0] = value*self.jspeed
+      if value==0:
+         self.homewardBound[0] = True
+      else:
+         self.homewardBound[0] = False
+         self.dindices[0] = value*self.jspeed
 
    def handle_LJUD(self, value):
       if debug: print 'Drone, handle_LJUD: ', value
-      self.dindices[1] = value*self.jspeed
+      if value==0:
+         self.homewardBound[1] = True
+      else:
+         self.homewardBound[1] = False
+         self.dindices[1] = value*self.jspeed
 
    def handle_RJLR(self, value):
       if debug: print 'Drone, handle_RJLR: ', value
-      self.dindices[2] = value*self.jspeed
+      if value==0:
+         self.homewardBound[2] = True
+      else:
+         self.homewardBound[2] = False
+         self.dindices[2] = value*self.jspeed
 
    def handle_RJUD(self, value):
       if debug: print 'Drone, handle_RJUD: ', value
-      self.dindices[3] = value*self.jspeed
+      if value==0:
+         self.homewardBound[3] = True
+      else:
+         self.homewardBound[3] = False
+         self.dindices[3] = value*self.jspeed
 
    def handle_L1(self, *args):
       if debug: print 'Drone, handle_L1', args

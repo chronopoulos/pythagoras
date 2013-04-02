@@ -216,13 +216,13 @@ if __name__=='__main__':
 
     ####
 
-    metro_rhythm = pyo.Metro(time=15./120).play()
+    metro_rhythm = pyo.Metro(time=15./100).play()
     metro_accu = pyo.Metro(time=0.01).play()
 
     controller = Gamepad()
 
     # Drone instrument
-    drone = inst.Drone(50, metro_accu, verbose=verbose)
+    drone = inst.Drone(48, metro_accu, verbose=verbose)
     controller.callback_LJLR = drone.handle_LJLR
     controller.callback_LJUD = drone.handle_LJUD
     controller.callback_RJLR = drone.handle_RJLR
@@ -246,6 +246,12 @@ if __name__=='__main__':
     controller.callback_RJLR = wub.handle_RJLR
     controller.callback_RJUD = wub.handle_RJUD
     """
+
+    # RandomTick instrument
+    #tick = inst.RandomTick(metro_rhythm)
+
+    # Melodizer instrument
+    melody = inst.Melodizer(metro_rhythm)
 
     controller.listen()
 
