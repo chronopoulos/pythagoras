@@ -35,8 +35,8 @@ class Player():
    def handleButton(self, pathlist, arg):
       if debug: print 'WebApp2Sequencer, handleButton: ', pathlist, arg
       if pathlist[2]=='SEQ':
-         step = int(pathlist[4])-1
-         note = int(pathlist[3])-1
+         step = int(pathlist[3])
+         note = int(pathlist[4])
          state = arg[0]
          self.interface.updateGridState(step, note, state)
       elif pathlist[2]=='DFT':
@@ -47,17 +47,16 @@ class Player():
    def handleSlider(self, pathlist, arg):
       if debug: print 'WebApp2Sequencer, handleSlider: ', pathlist, arg
       if pathlist[2]=='V':
-         if pathlist[3]=='1':
-            slider = int(pathlist[4])-1
+         if pathlist[3]=='2':
+            slider = int(pathlist[4])
             value = arg[0]
             self.interface.instrument.handleRow2(slider, value)
-
-         elif pathlist[3]=='2':
-            step = int(pathlist[4])-1
+         elif pathlist[3]=='1':
+            step = int(pathlist[4])
             vol = arg[0]
             self.interface.updateStepVol(step, vol)
       elif pathlist[2]=='H':
-         note = int(pathlist[3])-1
+         note = int(pathlist[3])
          vol = arg[0]
 	 if debug:
 	   print 'about to update notevol with: ', note, vol

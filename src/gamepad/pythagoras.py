@@ -22,7 +22,7 @@ class Gamepad():
     http://upgrayd.blogspot.com/2011/03/logitech-dual-action-usb-gamepad.html
     """
     def __init__(self):
-        self.pipe = open('/dev/input/js1', 'r')
+        self.pipe = open('/dev/input/js0', 'r')
         self.bindings = {
                         (1,0) : self.parse_button1,
                         (1,1) : self.parse_button2,
@@ -251,7 +251,7 @@ if __name__=='__main__':
     #tick = inst.RandomTick(metro_rhythm)
 
     # Melodizer instrument
-    melody = inst.Melodizer(metro_rhythm)
+    #melody = inst.Melodizer(metro_rhythm)
 
     controller.listen()
 
