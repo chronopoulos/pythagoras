@@ -56,4 +56,3 @@ class PolySynth():
       f = pyo.midiToHz(self.key+self.scale(note))
       vn = self.poly.request()
       self.voices[vn].play(f, amp)
-

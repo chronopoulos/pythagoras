@@ -14,26 +14,31 @@ class Player():
       self.interface = interface
       self.interface.setName(self.name)
       self.controlType = {
-         'button' : self.handleButton,
-         'slider' : self.handleSlider,
-         'xy' : self.handleXY
+         'button' : self.interface.handleButton,
+         'slider' : self.interface.handleSlider,
+         'xy' : self.interface.handleXY
          }
 
    def handleMsg(self, pathlist, arg):
-      if debug: print 'WebApp2Sequencer, handleMsg: ', pathlist, arg
+      if debug: print 'Player, handleMsg: ', pathlist, arg
       try:
          self.controlType[pathlist[1]](pathlist, arg)
       except:
          pass
 
    def handleXY(self, pathlist, arg):
-      if debug: print 'WebApp2Sequencer, handleXY: ', pathlist, arg
+      if debug: print 'Player, handleXY: ', pathlist, arg
       x = arg[0]
       y = arg[1]
-      self.interface.instrument.handleXY(x,y)
+      if pathlist[2]=='L':
+         self.interface.handleXY_L(x,y)
+      elif pathlist[2]=='R':
+         self.interface.handleXY_R(x,y)
+      elif pathlist[2]=='thexy':
+         self.interface.instrument.handleXY(x,y)
 
    def handleButton(self, pathlist, arg):
-      if debug: print 'WebApp2Sequencer, handleButton: ', pathlist, arg
+      if debug: print 'Player, handleButton: ', pathlist, arg
       if pathlist[2]=='SEQ':
          step = int(pathlist[3])
          note = int(pathlist[4])
@@ -43,9 +48,11 @@ class Player():
          self.interface.instrument.handleDFT(arg[0])
       elif pathlist[2]=='conway':
          self.interface.conway = (arg[0]==1)
+      else:
+         self.interface.handleButton(pathlist, arg)
 
    def handleSlider(self, pathlist, arg):
-      if debug: print 'WebApp2Sequencer, handleSlider: ', pathlist, arg
+      if debug: print 'Player, handleSlider: ', pathlist, arg
       if pathlist[2]=='V':
          if pathlist[3]=='2':
             slider = int(pathlist[4])
@@ -111,10 +118,18 @@ if __name__ == '__main__':
       print 'Setting jack = False'
       jack = False
 
+   if 'verbose' in sys.argv:
+      print 'Setting verbose = True'
+      verbose = True
+   else:
+      print 'Setting verbose = False'
+      verbose = False
+
    # distribute global variables
    for module in modules:
       module.debug = debug
       module.jack = jack
+      module.verbose = verbose
 
 
    jamserver = JamServer()
@@ -128,6 +143,7 @@ if __name__ == '__main__':
    jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24), maxVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), maxVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), maxVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('drone', ix.DroneFace(38, verbose=verbose)))
 
    print ''
    print 'Setup successful! Now listening for messages...'
