@@ -157,7 +157,7 @@ class Gamepad():
 
     def listen(self):
         """
-        Blockin infinite loop
+        Blocking infinite loop
         """
         while True:
             msg = self.pipe.read(8)
