@@ -59,7 +59,7 @@ class Drone():
    Drone class
    """
 
-   def __init__(self, key, metro_accu, verbose=False):
+   def __init__(self, key, verbose=False):
       fund = pyo.midiToHz(key)
       self.freqs = [i*fund for i in range(1,5)]
       self.ratios = [5,4,2,2]
@@ -77,14 +77,35 @@ class Drone():
          voice.setIndex(self.indices[i])
          voice.setMul(self.muls[i])
          self.voices.append(voice)
-      self.callback = pyo.TrigFunc(metro_accu, self.update)
       self.ticker = 0
       self.jspeed=1./50
       self.dspeed=1./100
       self.verbose = verbose
       self.pressed = sortedset()
+      self.handlers = {
+                        'LJLR' : self.handle_LJLR,
+                        'LJUD' : self.handle_LJUD,
+                        'RJLR' : self.handle_RJLR,
+                        'RJUD' : self.handle_RJUD,
+                        'L1' : self.handle_L1,
+                        'R1' : self.handle_R1,
+                        'L2' : self.handle_L2,
+                        'R2' : self.handle_R2,
+                        'B1' : self.handle_B1,
+                        'B2' : self.handle_B2,
+                        'B3' : self.handle_B3,
+                        'B4' : self.handle_B4,
+                        'DPLR' : self.handle_DPLR,
+                        'DPUD' : self.handle_DPUD,
+                        }
 
-   def update(self):
+   def followMetro_rhythm(self, metro_rhythm):
+      pass
+
+   def followMetro_ctrl(self, metro_ctrl):
+      self.callback = pyo.TrigFunc(metro_ctrl, self.automation)
+
+   def automation(self):
       for i in range(4):
          if self.homewardBound[i]:
             self.dindices[i] = -self.indices[i]*self.jspeed
@@ -128,13 +149,9 @@ class Drone():
 
    def handle_L1(self, *args):
       if debug: print 'Drone, handle_L1', args
-      for i in range(2):
-         self.dindices[i] = -self.indices[i]*self.jspeed
 
    def handle_R1(self, *args):
       if debug: print 'Drone, handle_R1', args
-      for i in range(2,4):
-         self.dindices[i] = -self.indices[i]*self.jspeed
 
    def handle_L2(self, *args):
       if debug: print 'Drone, handle_L2', args
@@ -143,12 +160,12 @@ class Drone():
          self.voices[i].setIndex(self.indices[i])
 
    def handle_R2(self, *args):
-      if debug: print 'Drone, handle_L2', args
+      if debug: print 'Drone, handle_R2', args
       self.indices = self.indices[:2]+[0,0]
       for i in range(4):
          self.voices[i].setIndex(self.indices[i])
 
-   def handle_button1(self, state):
+   def handle_B1(self, state):
       print 'Keyboard, handlebutton1', state
       if (state==1):
          self.pressed.add(0)
@@ -156,21 +173,21 @@ class Drone():
          self.pressed.remove(0)
       print self.pressed
 
-   def handle_button2(self, state):
+   def handle_B2(self, state):
       if (state==1):
          self.pressed.add(1)
       else:
          self.pressed.remove(1)
       print self.pressed
 
-   def handle_button3(self, state):
+   def handle_B3(self, state):
       if (state==1):
          self.pressed.add(2)
       else:
          self.pressed.remove(2)
       print self.pressed
 
-   def handle_button4(self, state):
+   def handle_B4(self, state):
       if (state==1):
          self.pressed.add(3)
       else:
