@@ -28,7 +28,7 @@ class Sequencer():
       x = arg[0]
       y = arg[1]
       if pathlist[2]=='thexy':
-         self.interface.instrument.handleXY(x,y)
+         self.instrument.handleXY(x,y)
 
    def handleButton(self, pathlist, arg):
       if debug: print 'Sequencer, handleButton: ', pathlist, arg
@@ -47,20 +47,22 @@ class Sequencer():
    def handleSlider(self, pathlist, arg):
       if debug: print 'Sequencer, handleSlider: ', pathlist, arg
       if pathlist[2]=='V':
+         print "V"
          if pathlist[3]=='2':
             slider = int(pathlist[4])
             value = arg[0]
-            self.interface.instrument.handleRow2(slider, value)
+            self.instrument.handleRow2(slider, value)
          elif pathlist[3]=='1':
             step = int(pathlist[4])
             vol = arg[0]
-            self.interface.updateStepVol(step, vol)
+            self.updateStepVol(step, vol)
       elif pathlist[2]=='H':
          note = int(pathlist[3])
          vol = arg[0]
 	 if debug:
 	   print 'about to update notevol with: ', note, vol
-         self.interface.updateNoteVol(note, vol)
+         self.updateNoteVol(note, vol)
+
 
    def setName(self, name):
       self.name = name

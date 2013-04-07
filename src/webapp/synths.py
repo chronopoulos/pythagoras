@@ -58,6 +58,7 @@ class Additive():
       self.filter.setQ(1.+y*3.)
 
    def handleRow2(self, slider, value):
+      if debug: print 'Additive, handleRow2: ', slider, value
       harmonic = slider
       coeff = value
       self.updateSpectrum(harmonic, coeff)
@@ -126,6 +127,7 @@ class FM():
       self.fm.setIndex(index)
 
    def handleRow2(self, slider, value):
+      if debug: print 'FM, handleRow2: ', slider, value
       self.setEnvTableList(slider, value)
 
    def handleDFT(self, state):
