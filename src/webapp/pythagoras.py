@@ -23,8 +23,8 @@ class Player():
       if debug: print 'Player, handleMsg: ', pathlist, arg
       try:
          self.controlType[pathlist[1]](pathlist, arg)
-      except:
-         pass
+      except KeyError:
+         print 'Player, handleMsg: Unbound control type!'
 
    def handleXY(self, pathlist, arg):
       if debug: print 'Player, handleXY: ', pathlist, arg
@@ -87,10 +87,13 @@ class JamServer():
    def routeByName(self, pathstr, arg, typestr, server, usrData):
       if debug: print 'JamServer, routeByName: ', pathstr, arg
       pathlist = pathstr.split('/')
-      try:
-         self.players[pathlist[0]].handleMsg(pathlist, arg)
-      except:
-         pass
+      if pathlist[0]=='mcp':
+         self.handleMCP(pathlist, arg)
+      else:
+         try:
+            self.players[pathlist[0]].handleMsg(pathlist, arg)
+         except KeyError:
+            print 'JamServer, routeByName: Player not found!'
       
    def updateMetro(self, bpm):
       self.metro.setTime(15./bpm)
@@ -98,6 +101,14 @@ class JamServer():
    def addPlayer(self, player):
       player.interface.followMetro(self.metro)
       self.players[player.name] = player
+
+   def handleMCP(self, pathlist, arg):
+      if debug: print 'JamServer, handleMCP: ', pathlist, arg
+      if pathlist[1]=='xy':
+         self.players[pathlist[2]].interface.handleMCP(pathlist, arg)
+      elif pathlist[1:3]==['slider','tempo']:
+         bpm = 60 + 120*arg[0]
+         self.metro.setTime(15./bpm)
    
 
 ############
@@ -133,16 +144,16 @@ if __name__ == '__main__':
 
 
    jamserver = JamServer()
-   jamserver.addPlayer(Player('tr808', ix.Sequencer(inst.Sampler(smp.tr808), maxVol=0.15)))
-   jamserver.addPlayer(Player('rx21Latin', ix.Sequencer(inst.Sampler(smp.rx21Latin), maxVol=0.15)))
-   jamserver.addPlayer(Player('linndrum', ix.Sequencer(inst.Sampler(smp.linndrum), maxVol=0.15)))
-   jamserver.addPlayer(Player('koto', ix.Sequencer(inst.Sampler(smp.koto), maxVol=0.15)))
-   jamserver.addPlayer(Player('rhodes', ix.Sequencer(inst.Sampler(smp.rhodes), maxVol=0.15)))
-   jamserver.addPlayer(Player('chimes', ix.Sequencer(inst.Sampler(smp.chimes), maxVol=0.15)))
-   jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72), maxVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24), maxVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), maxVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), maxVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('tr808', ix.Sequencer(inst.Sampler(smp.tr808), seqVol=0.15)))
+   jamserver.addPlayer(Player('rx21Latin', ix.Sequencer(inst.Sampler(smp.rx21Latin), seqVol=0.15)))
+   jamserver.addPlayer(Player('linndrum', ix.Sequencer(inst.Sampler(smp.linndrum), seqVol=0.15)))
+   jamserver.addPlayer(Player('koto', ix.Sequencer(inst.Sampler(smp.koto), seqVol=0.15)))
+   jamserver.addPlayer(Player('rhodes', ix.Sequencer(inst.Sampler(smp.rhodes), seqVol=0.15)))
+   jamserver.addPlayer(Player('chimes', ix.Sequencer(inst.Sampler(smp.chimes), seqVol=0.15)))
+   jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('drone', ix.DroneFace(38, verbose=verbose)))
 
    print ''

@@ -10,12 +10,12 @@ class Sequencer():
    """
 
 
-   def __init__(self, instrument, loop=16, nnotes=6, conway=False, maxVol=1.):
+   def __init__(self, instrument, loop=16, nnotes=6, conway=False, seqVol=0.25):
       self.instrument = instrument
       self.nx = loop
       self.ny = nnotes
       self.conway = False
-      self.maxVol = maxVol
+      self.seqVol = [seqVol]*2
       self.step = 0
       self.gridState = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.diff = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
@@ -78,8 +78,14 @@ class Sequencer():
    def play(self):
       notes = np.where(self.gridState[self.step,:]==1)[0]
       for note in notes:
-         amp=self.maxVol*self.stepVol[self.step]*self.noteVol[note]
+         amp=[lr*self.stepVol[self.step]*self.noteVol[note] for lr in self.seqVol]
          self.instrument.play(note, amp)
+
+   def handleMCP(self, pathlist, arg):
+      pan = arg[0]
+      amp = arg[1]
+      mul = [amp*(1.-pan), amp*pan]
+      self.seqVol = mul
 
    def advance(self):
       self.step = (self.step + 1) % self.nx
@@ -206,8 +212,8 @@ class DroneFace():
       self.freqs = [i*fund for i in range(1,5)]
       self.ratios = [5,4,2,2]
       self.indices = [0]*4
-      self.muls = [0.15, 0.15, 0.30, 0.22]
-      self.muls = [mul/2 for mul in self.muls]
+      self.relativeMuls = [0.15, 0.15, 0.30, 0.22]
+      self.muls = [0*rm for rm in self.relativeMuls]
       self.dindices = [0]*4
       self.dmuls = [0]*4
       self.homewardBound = [False]*4
@@ -252,7 +258,6 @@ class DroneFace():
             self.dindices[i] = -self.indices[i]*self.speed
             self.indices[i] += self.dindices[i]
          self.voices[i].setIndex(self.indices[i])
-         self.voices[i].setMul(self.muls[i])
       if self.verbose: print 'Indices, Muls, Ratios: ', self.indices, self.automation
 
    def handleXY(self, pathlist, arg):
@@ -314,4 +319,12 @@ class DroneFace():
             elif arg[0]==0:
                self.automation[2:] = [0, 0]
       if debug: print 'Automation state: ', self.automation
+
+   def handleMCP(self, pathlist, arg):
+      if debug: print 'DroneFace, handleMCP: ', pathlist, arg
+      pan = arg[0]
+      amp = arg[1]
+      mul = [amp*(1.-pan), amp*pan]
+      for i in range(4):
+         self.voices[i].setMul([lr*self.relativeMuls[i] for lr in mul])
 

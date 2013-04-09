@@ -54,6 +54,42 @@ class RandomTick():
       if random.random()>0.5:
          self.sample.out()
 
+
+def Euclid(head, tail):
+    """
+    Recursive Euclidean Rhythm generator
+    head and tail should each be a list of lists
+    e.g. Euclid([[1]]*3, [[0]]*5) would give the Euclidean rhythm for n=8, k=3
+    See Euclid_driver for example usage
+    """
+    nh = len(head)
+    nt = len(tail)
+    if nt<=1:
+        return sum(head+tail,[]) # flattening solution
+    else:
+        if nh>nt:
+            for i in range(nt):
+                head[i] = head[i] + tail.pop(0)
+            tail = head[nt:]
+            head = head[:nt]
+            return Euclid(head, tail)
+        else:
+            for i in range(nh):
+                head[i] = head[i] + tail.pop(0)
+            return Euclid(head, tail)
+
+def Euclid_driver(n):
+    """
+    Generates a dictionary of all possible euclidean rhythms of a given length
+    (modulo rotation)
+    """
+    result = {}
+    for i in range(1,n+1):
+        result[i] = Euclid( [[1]]*i, [[0]]*(n-i) )
+
+    return result
+
+
 class Drone():
    """
    Drone class
@@ -282,3 +318,7 @@ class Keyboard():
    def followMetro(self, metro):
       self.metro = metro
       self.callbackMetro = pyo.TrigFunc(self.metro, self.takeStep)
+
+
+if __name__=='__main__':
+    print Euclid([[1]]*2, [[0]]*6)

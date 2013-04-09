@@ -100,8 +100,8 @@ class FM():
       self.trig = pyo.Trig()
       self.envTableList = [(i*8192/15,1./(i+1)) for i in range(16)]
       self.envTable = pyo.CurveTable(self.envTableList)
-      self.env = pyo.TrigEnv(self.trig, table=self.envTable, dur=0.6, mul=0.)
-      self.fm = pyo.FM(carrier=[0.,0.], mul=self.env[0])
+      self.env = pyo.TrigEnv(self.trig, table=self.envTable, dur=0.6, mul=[0.,0.])
+      self.fm = pyo.FM(carrier=[0.,0.], mul=self.env)
       self.output = self.fm.out()
 
    def setEnvTableList(self, timestep, value):
