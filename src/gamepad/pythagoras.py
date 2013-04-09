@@ -2,6 +2,7 @@ import pyo, os, sys, threading, time
 import instruments as inst
 import scales, voices
 import logitech 
+import samplepacks as samp
 
 modules = [inst, scales, voices, logitech]
 
@@ -100,7 +101,7 @@ if __name__=='__main__':
     ####
 
     jamserver = JamServer()
-    jamserver.addPlayer(Player('alice', '/dev/input/js1', inst.Drone(36)))
-    jamserver.addPlayer(Player('bob', '/dev/input/js2', inst.Drone(48)))
+    jamserver.addPlayer(Player('chris', '/dev/input/js1', inst.RhythmBox(inst.Sampler(samp.dundunba))))
+    jamserver.addPlayer(Player('bob', '/dev/input/js2', inst.Drone(36)))
     jamserver.start()
 

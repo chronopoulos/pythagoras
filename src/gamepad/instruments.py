@@ -6,6 +6,8 @@ import random
 from voices import FM
 import scales
 from poly import Poly
+from pprint import pprint
+
 
 class Melodizer():
    """
@@ -64,7 +66,7 @@ def Euclid(head, tail):
     """
     nh = len(head)
     nt = len(tail)
-    if nt<=1:
+    if (nt<=1) or (nh==0):
         return sum(head+tail,[]) # flattening solution
     else:
         if nh>nt:
@@ -84,10 +86,157 @@ def Euclid_driver(n):
     (modulo rotation)
     """
     result = {}
-    for i in range(1,n+1):
+    for i in range(n+1):
         result[i] = Euclid( [[1]]*i, [[0]]*(n-i) )
-
     return result
+
+
+class Sampler():
+   """
+   Sampler class
+   """
+
+   def __init__(self, pack):
+      """
+      Pack should simply be a list of filenames.
+      pyo.SfPlayer objects are created upon instantiation.
+      This way, multiple Sampler instances can have their own bitstreams.
+      """
+      self.notes = []
+      for filename in pack:
+         self.notes.append(pyo.SfPlayer(filename, speed=[1,1]))
+         print 'Added '+filename
+
+   def play(self, note, amp):
+      self.notes[note].setMul(amp)
+      self.notes[note].out()
+
+def limit(lb, x, ub):
+    return max(min(x,ub),lb)
+
+def cycle(l, n):
+    """
+    Computes the nth cyclic permutation of l
+    -> is there a built-in for this?
+    Modifies the argument l, in place (?)
+    """
+    if n>0:
+        for i in range(n):
+            tail = l.pop()
+            l.insert(0,tail)
+    else:
+        for i in range(-n):
+            head = l.pop(0)
+            l.append(head)
+
+
+class RhythmBox():
+    """
+    RhythmBox class
+    """
+    def __init__(self, sampler, loop=16):
+        self.sampler=sampler
+        self.step = 0
+        self.loop = loop
+        self.rhythms = Euclid_driver(self.loop)
+        self.grid = []
+        self.pressed = sortedset()
+        self.fills = [0]*4
+        for i in range(4):
+            self.grid.append([0]*self.loop)
+        self.handlers = {
+                        'LJLR' : self.handle_LJLR,
+                        'LJUD' : self.handle_LJUD,
+                        'RJLR' : self.handle_RJLR,
+                        'RJUD' : self.handle_RJUD,
+                        'L1' : self.handle_L1,
+                        'R1' : self.handle_R1,
+                        'L2' : self.handle_L2,
+                        'R2' : self.handle_R2,
+                        'B1' : self.handle_B1,
+                        'B2' : self.handle_B2,
+                        'B3' : self.handle_B3,
+                        'B4' : self.handle_B4,
+                        'DPLR' : self.handle_DPLR,
+                        'DPUD' : self.handle_DPUD,
+                        }
+
+    def followMetro_rhythm(self, metro):
+        self.callback = pyo.TrigFunc(metro, self.play)
+
+    def followMetro_ctrl(self, metro):
+        pass
+
+    def handle_LJLR(self, *args):
+        pass
+
+    def handle_LJUD(self, *args):
+        pass
+
+    def handle_RJLR(self, *args):
+        pass
+
+    def handle_RJUD(self, *args):
+        pass
+
+    def handle_L1(self, *args):
+        pass
+
+    def handle_R1(self, *args):
+        pass
+
+    def handle_L2(self, *args):
+        pass
+
+    def handle_R2(self, *args):
+        pprint(self.rhythms)
+
+    def handle_B1(self, state):
+        if (state==1):
+            self.pressed.add(0)
+        else:
+            self.pressed.remove(0)
+
+    def handle_B2(self, state):
+        if (state==1):
+            self.pressed.add(1)
+        else:
+            self.pressed.remove(1)
+
+    def handle_B3(self, state):
+        if (state==1):
+            self.pressed.add(2)
+        else:
+            self.pressed.remove(2)
+
+    def handle_B4(self, state):
+        if (state==1):
+            self.pressed.add(3)
+        else:
+            self.pressed.remove(3)
+
+    def handle_DPLR(self, value):
+        if debug: print 'RhythmBox, handle_DPLR: ', value
+        if value==0: return
+        for i in self.pressed:
+            cycle(self.grid[i], value)
+        pprint(self.grid)
+
+    def handle_DPUD(self, value):
+        if debug: print 'RhythmBox, handle_DPUD: ', value
+        if value==0: return
+        for i in self.pressed:
+            self.fills[i] = limit(0, self.fills[i]+value, self.loop)
+            self.grid[i] = self.rhythms[self.fills[i]][:]
+        pprint(self.grid)
+
+    def play(self):
+        for i in range(4):
+            if self.grid[i][self.step]:
+                self.sampler.play(i, 1)
+        self.step = (self.step + 1) % self.loop
+
+
 
 
 class Drone():
@@ -319,6 +468,79 @@ class Keyboard():
       self.metro = metro
       self.callbackMetro = pyo.TrigFunc(self.metro, self.takeStep)
 
+###
+#####
+###
+
+class Template():
+
+    def __init__(self):
+        self.handlers = {
+                        'LJLR' : self.handle_LJLR,
+                        'LJUD' : self.handle_LJUD,
+                        'RJLR' : self.handle_RJLR,
+                        'RJUD' : self.handle_RJUD,
+                        'L1' : self.handle_L1,
+                        'R1' : self.handle_R1,
+                        'L2' : self.handle_L2,
+                        'R2' : self.handle_R2,
+                        'B1' : self.handle_B1,
+                        'B2' : self.handle_B2,
+                        'B3' : self.handle_B3,
+                        'B4' : self.handle_B4,
+                        'DPLR' : self.handle_DPLR,
+                        'DPUD' : self.handle_DPUD,
+                        }
+
+    def followMetro_rhythm(self, metro):
+        pass
+
+    def followMetro_ctrl(self, metro):
+        pass
+
+    def handle_LJLR(self, *args):
+        pass
+
+    def handle_LJUD(self, *args):
+        pass
+
+    def handle_RJLR(self, *args):
+        pass
+
+    def handle_RJUD(self, *args):
+        pass
+
+    def handle_L1(self, *args):
+        pass
+
+    def handle_R1(self, *args):
+        pass
+
+    def handle_L2(self, *args):
+        pass
+
+    def handle_R2(self, *args):
+        pass
+
+    def handle_B1(self, *args):
+        pass
+
+    def handle_B2(self, *args):
+        pass
+
+    def handle_B3(self, *args):
+        pass
+
+    def handle_B4(self, *args):
+        pass
+
+    def handle_DPLR(self, *args):
+        pass
+
+    def handle_DPUD(self, *args):
+        pass
+
+#####
 
 if __name__=='__main__':
-    print Euclid([[1]]*2, [[0]]*6)
+    pprint(Euclid_driver(16))

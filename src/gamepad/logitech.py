@@ -34,63 +34,63 @@ class Gamepad():
 
 
     def parse_button1(self, values):
-        if debug: print ', parse_button1: ', values
+        if debug: print 'Gamepad, parse_button1: ', values
         try:
-            self.handlers['button1'](values[0])
+            self.handlers['B1'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_button2(self, values):
-        if debug: print ', parse_button2: ', values
+        if debug: print 'Gamepad, parse_button2: ', values
         try:
-            self.handlers['button2'](values[0])
+            self.handlers['B2'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_button3(self, values):
-        if debug: print ', parse_button3: ', values
+        if debug: print 'Gamepad, parse_button3: ', values
         try:
-            self.handlers['button3'](values[0])
+            self.handlers['B3'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_button4(self, values):
-        if debug: print ', parse_button4: ', values
+        if debug: print 'Gamepad, parse_button4: ', values
         try:
-            self.handlers['button4'](values[0])
+            self.handlers['B4'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_L1(self, values):
-        if debug: print ', parse_L1: ', values
+        if debug: print 'Gamepad, parse_L1: ', values
         try:
             self.handlers['L1'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_R1(self, values):
-        if debug: print ', parse_R1: ', values
+        if debug: print 'Gamepad, parse_R1: ', values
         try:
             self.handlers['R1'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_L2(self, values):
-        if debug: print ', parse_L2: ', values
+        if debug: print 'Gamepad, parse_L2: ', values
         try:
             self.handlers['L2'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_R2(self, values):
-        if debug: print ', parse_R2: ', values
+        if debug: print 'Gamepad, parse_R2: ', values
         try:
             self.handlers['R2'](values[0])
         except AttributeError:
             print 'Callback not defined'
 
     def parse_DPLR(self, values):
-        if debug: print ', parse_DPLR: ', values
+        if debug: print 'Gamepad, parse_DPLR: ', values
         if values==(255,127):
             value=1
         elif values==(0,0):
@@ -103,20 +103,18 @@ class Gamepad():
             print 'Callback not defined'
 
     def parse_DPUD(self, values):
-        if debug: print ', parse_DPUD: ', values
+        if debug: print 'Gamepad, parse_DPUD: ', values
         if values==(255,127):
             value=-1
         elif values==(0,0):
             value=0
         elif values==(1,128):
             value=1
-        try:
-            self.handlers['DPUD'](value)
-        except AttributeError:
-            print 'Callback not defined'
+        self.handlers['DPUD'](value)
+
 
     def parse_LJLR(self, values):
-        if debug: print ', parse_LJLR: ', values
+        if debug: print 'Gamepad, parse_LJLR: ', values
         value = combineBytes(values)
         try:
             self.handlers['LJLR'](value)
@@ -124,7 +122,7 @@ class Gamepad():
             print 'Callback not defined'
 
     def parse_LJUD(self, values):
-        if debug: print ', parse_LJUD: ', values
+        if debug: print 'Gamepad, parse_LJUD: ', values
         value = combineBytes(values, flip=True)
         try:
             self.handlers['LJUD'](value)
@@ -132,7 +130,7 @@ class Gamepad():
             print 'Callback not defined'
 
     def parse_RJLR(self, values):
-        if debug: print ', parse_RJLR: ', values
+        if debug: print 'Gamepad, parse_RJLR: ', values
         value = combineBytes(values)
         try:
             self.handlers['RJLR'](value)
@@ -140,7 +138,7 @@ class Gamepad():
             print 'Callback not defined'
 
     def parse_RJUD(self, values):
-        if debug: print ', parse_RJUD: ', values
+        if debug: print 'Gamepad, parse_RJUD: ', values
         value = combineBytes(values, flip=True)
         try:
             self.handlers['RJUD'](value)
@@ -153,13 +151,11 @@ class Gamepad():
         """
         while True:
             msg = self.pipe.read(8)
-            if debug: print ', listen: ', [ord(char) for char in msg]
+            if debug: print 'Gamepad, listen: ', [ord(char) for char in msg]
             values = (ord(msg[4]), ord(msg[5]))
             control = (ord(msg[6]), ord(msg[7]))
             try:
                 self.parsers[control](values)
             except KeyError:
-                print ', Unbound event! Control code is: ', control
-            except AttributeError:
-                print 'Event bound but callback undefined: ', control
+                print 'Gamepad, Unbound event! Control code is: ', control
 
