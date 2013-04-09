@@ -106,9 +106,13 @@ class JamServer():
       if debug: print 'JamServer, handleMCP: ', pathlist, arg
       if pathlist[1]=='xy':
          self.players[pathlist[2]].interface.handleMCP(pathlist, arg)
-      elif pathlist[1:3]==['slider','tempo']:
-         bpm = 60 + 120*arg[0]
-         self.metro.setTime(15./bpm)
+      elif pathlist[1]=='slider':
+         if pathlist[2]=='tempo':
+            bpm = 60 + 120*arg[0]
+            self.metro.setTime(15./bpm)
+         elif pathlist[2]=='volume':
+            for player in self.players.values():
+               player.interface.handleGlobalVol(pathlist, arg)
    
 
 ############
