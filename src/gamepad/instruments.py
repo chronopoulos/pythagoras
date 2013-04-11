@@ -3,10 +3,11 @@ import instruments as inst
 import numpy as np
 from blist import sortedset
 import random
-from voices import FM
+from voices import FM, Droplet
 import scales
 from poly import Poly
 from pprint import pprint
+from random import random
 
 
 class Melodizer():
@@ -237,7 +238,94 @@ class RhythmBox():
         self.step = (self.step + 1) % self.loop
 
 
+class WaterPan():
 
+    def __init__(self):
+        self.metro = pyo.Metro(time=5+5*random()).play()
+        self.freq = 500 + random()*10
+        self.droplet = Droplet(self.freq)
+        self.volpan = [random(), random()]
+        self.callback = pyo.TrigFunc(self.metro, self.drip)
+
+    def drip(self):
+        self.droplet.play(self.freq, self.volpan)
+
+    def dummy(self):
+        pass
+
+
+class Droplets():
+
+    def __init__(self):
+        self.waterpans = []
+        for i in range(6):
+            self.waterpans.append(WaterPan())
+        self.handlers = {
+                        'LJLR' : self.handle_LJLR,
+                        'LJUD' : self.handle_LJUD,
+                        'RJLR' : self.handle_RJLR,
+                        'RJUD' : self.handle_RJUD,
+                        'L1' : self.handle_L1,
+                        'R1' : self.handle_R1,
+                        'L2' : self.handle_L2,
+                        'R2' : self.handle_R2,
+                        'B1' : self.handle_B1,
+                        'B2' : self.handle_B2,
+                        'B3' : self.handle_B3,
+                        'B4' : self.handle_B4,
+                        'DPLR' : self.handle_DPLR,
+                        'DPUD' : self.handle_DPUD,
+                        }
+
+    def followMetro_rhythm(self, metro):
+        pass
+
+    def followMetro_ctrl(self, metro):
+        pass
+
+    def handle_LJLR(self, *args):
+        pass
+
+    def handle_LJUD(self, *args):
+        pass
+
+    def handle_RJLR(self, *args):
+        pass
+
+    def handle_RJUD(self, *args):
+        pass
+
+    def handle_L1(self, *args):
+        pass
+
+    def handle_R1(self, *args):
+        pass
+
+    def handle_L2(self, *args):
+        pass
+
+    def handle_R2(self, *args):
+        pass
+
+    def handle_B1(self, value):
+        self.waterpans[0].drip()
+
+    def handle_B2(self, *args):
+        pass
+
+    def handle_B3(self, *args):
+        pass
+
+    def handle_B4(self, *args):
+        pass
+
+    def handle_DPLR(self, *args):
+        pass
+
+    def handle_DPUD(self, *args):
+        pass
+
+    
 
 class Drone():
    """

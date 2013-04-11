@@ -101,7 +101,8 @@ if __name__=='__main__':
     ####
 
     jamserver = JamServer()
-    jamserver.addPlayer(Player('chris', '/dev/input/js1', inst.RhythmBox(inst.Sampler(samp.dundunba))))
-    jamserver.addPlayer(Player('bob', '/dev/input/js2', inst.Drone(36)))
+    #jamserver.addPlayer(Player('rhythmbox', '/dev/input/js0', inst.RhythmBox(inst.Sampler(samp.dundunba))))
+    #jamserver.addPlayer(Player('drone', '/dev/input/js1', inst.Drone(36)))
+    jamserver.addPlayer(Player('droplets', '/dev/input/js1', inst.Droplets()))
     jamserver.start()
 

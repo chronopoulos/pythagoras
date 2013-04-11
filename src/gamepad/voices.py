@@ -7,6 +7,30 @@ as part of a polyphonic synthesizer.
 
 import pyo
 
+class Droplet():
+
+    def __init__(self, freq=500):
+        self.trig = pyo.Trig()
+        self.decayTable = pyo.ExpTable([(0,1),(8191,0.001)], exp=5, inverse=False)
+        self.growthTable = pyo.ExpTable([(0,freq),(8191,2*freq)], exp=5, inverse=True)
+        self.env = pyo.TrigEnv(self.trig, table=self.decayTable, dur=0.1).mix(2)
+        self.sweep = pyo.TrigEnv(self.trig, table=self.growthTable, dur=0.1)
+        self.sin = pyo.Sine(freq=self.sweep, mul=self.env)
+        #self.output = pyo.Delay(self.sin, delay=0.1, feedback=0.5).out()
+        self.output = pyo.Freeverb(self.sin, size=[.79,.8], damp=.9, bal=.3).out()
+
+    def setFreq(self, freq):
+        self.growthTable.replace([(0,freq), 8191,2*freq])
+
+    def setAmp(self, amp):
+        self.env.setMul(amp)
+
+    def play(self, f=500, amp=1):
+        #self.setFreq(f)
+        self.setAmp(amp)
+        self.trig.play()
+
+
 class Square():
    """
    Square wave synthesizer.
@@ -35,6 +59,7 @@ class Square():
       self.setDur(dur)
       # TODO: make these setter methods more efficient
       #  they're being called more often than they need to be
+      #  idea: use *args to determine whether to call the setters
       self.trig.play()
 
 class Additive():
