@@ -7,6 +7,14 @@ Modular arithmetic is used, so there is no limit to the index you may request.
 def chromatic(i):
    return i
 
+globscale = []
+
+def globalscale(i):
+  j=i%len(globscale)
+  k=i//len(globscale)
+  print i, "globscale: ", globscale
+  return k*12 + globscale[j]
+
 def major(i):
    j=i%7
    k=i//7

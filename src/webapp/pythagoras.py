@@ -147,6 +147,8 @@ if __name__ == '__main__':
       module.verbose = verbose
 
 
+   jamscale=scales.globalscale
+
    jamserver = JamServer()
    jamserver.addPlayer(Player('tr808', ix.Sequencer(inst.Sampler(smp.tr808), seqVol=0.15)))
    jamserver.addPlayer(Player('rx21Latin', ix.Sequencer(inst.Sampler(smp.rx21Latin), seqVol=0.15)))
@@ -154,12 +156,12 @@ if __name__ == '__main__':
    jamserver.addPlayer(Player('koto', ix.Sequencer(inst.Sampler(smp.koto), seqVol=0.15)))
    jamserver.addPlayer(Player('rhodes', ix.Sequencer(inst.Sampler(smp.rhodes), seqVol=0.15)))
    jamserver.addPlayer(Player('chimes', ix.Sequencer(inst.Sampler(smp.chimes), seqVol=0.15)))
-   jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72), seqVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24), seqVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), seqVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72, scale=jamscale), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24, scale=jamscale), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60, scale=jamscale), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36, scale=jamscale), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('drone', ix.DroneFace(38, verbose=verbose)))
-   jamserver.addPlayer(Player('toner', ix.ChordExplorer(verbose=verbose)))
+   jamserver.addPlayer(Player('toner', ix.ChordExplorer(scaletomod=scales.globscale)))
 
    print ''
    print 'Setup successful! Now listening for messages...'

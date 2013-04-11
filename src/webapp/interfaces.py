@@ -336,26 +336,29 @@ class DroneFace():
          self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
 
 
+'''
+CXScale = []
+
+def chordexscale(i):
+  j=i%len(CXScale)
+  k=i//len(thechor)
+  print i, "CXScale: ", CXScale
+  return k*12 + CXScale[j]
+'''
 
 class ChordExplorer():
    """
    Chord Explorer class
    """
 
-   def major(i):
-      j=i%7
-      k=i//7
-      scale = [0,2,4,5,7,9,11]
-      return k*12 + scale[j]
-
-   def __init__(self, verbose=False):
+   def __init__(self, scaletomod):
       self.verbose = verbose 
       self.twelvetones = [False, False, False, False, False, False, False, False, False, False, False, False] 
       self.twelvescale = []
       self.twelvedegrees = [False, False, False, False, False, False, False, False, False, False, False, False] 
       self.degrees = []
       self.curtone = 0
-      self.scale = []
+      self.scale = scaletomod
 
    def setName(self, name):
       self.name = name
@@ -394,7 +397,7 @@ class ChordExplorer():
    def calcNotes(self):
      self.calcScale()
      self.calcDegrees()
-     self.scale = []
+     del self.scale[:]
      count = 0
      for d in self.degrees:
       i = d + self.curtone
