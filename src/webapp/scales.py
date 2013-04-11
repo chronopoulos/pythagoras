@@ -10,9 +10,11 @@ def chromatic(i):
 globscale = []
 
 def globalscale(i):
-  j=i%len(globscale)
-  k=i//len(globscale)
-  print i, "globscale: ", globscale
+  L = len(globscale)
+  if (L == 0):
+    return majorPentatonic(i) 
+  j=i%L
+  k=i//L
   return k*12 + globscale[j]
 
 def major(i):
