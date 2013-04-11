@@ -372,44 +372,36 @@ class ChordExplorer():
    def handleSlider(self, pathlist, arg):
       pass
 
-   def calcScale():
+   def calcScale(self):
      index = 0
-     count = 0
      self.twelvescale = []
      for b in self.twelvetones:
        if b:
-         self.twelvescale[count] = index
-         count = count + 1
+         self.twelvescale.append(index)
        index = index + 1
 
-   def calcDegrees():
+   def calcDegrees(self):
      index = 0
-     count = 0;
-     sccount = len(scale)
+     scount = len(self.twelvescale)
      self.degrees = []
      for b in self.twelvedegrees:
        if b:
-         self.degrees[count] = index
-         count = count + 1
+         self.degrees.append(index)
        index = index + 1
        if index > scount:
-	 break
+         break
 
-   def calcNotes():
-     calcScale()
-     calcDegrees()
+   def calcNotes(self):
+     self.calcScale()
+     self.calcDegrees()
      self.scale = []
      count = 0
      for d in self.degrees:
       i = d + self.curtone
-      j=i%count(self.twelvescale)
-      k=i//count(self.twelvescale)
-      self.scale[count] = k*12 + twelvescale[j]
-      count = count + 1
-
-
-     #  self.scale[count] = self.twelvescale(d + self.curtone)
-     #  f = pyo.midiToHz(self.key+self.scale(self.chord+triad(note)))
+      j=i%len(self.twelvescale)
+      k=i//len(self.twelvescale)
+      self.scale.append(k*12 + self.twelvescale[j])
+      #self.scale.append(self.twelvescale[j])
 
    def handleButton(self, pathlist, arg):
       if debug: print 'chord explorer, handleButton: ', pathlist, arg
@@ -420,9 +412,12 @@ class ChordExplorer():
           print str(b)
       if (pathlist[2] == "degrees"):
         index = int(pathlist[3])
-	self.degrees[index] = bool(arg[0])  
+	self.twelvedegrees[index] = bool(arg[0])  
+      print "here"
       if (pathlist[2] == "curtone"):
         self.curtone = int(pathlist[3])
+      #self.calcScale()
+      #self.calcDegrees()
       self.calcNotes()
       print "twelvescale: ", self.twelvescale
       print "degrees ", self.degrees
