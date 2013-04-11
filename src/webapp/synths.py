@@ -45,10 +45,10 @@ class Additive():
    def __init__(self):
       self.trig = pyo.Trig()
       decaytable = pyo.LinTable(list=[(0, 1.0), (8191, 0.0)])
-      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=.25)
+      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=[0,0])
       self.spectrum = [1.]+[0.]*15  # 16 total
       self.waveform = pyo.HarmTable(self.spectrum)
-      self.osc = pyo.Osc(self.waveform, freq=[0.,0.], mul=self.env[0])
+      self.osc = pyo.Osc(self.waveform, freq=[0.,0.], mul=self.env)
       self.filter = pyo.Biquad(self.osc, freq=[300.,300.], type=2, q=2.)
       self.output = self.filter.out()
 

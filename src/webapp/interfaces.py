@@ -11,6 +11,7 @@ class Sequencer():
 
 
    def __init__(self, instrument, loop=16, nnotes=6, conway=False, seqVol=0.25):
+      self.globalVol = 0.5
       self.instrument = instrument
       self.nx = loop
       self.ny = nnotes
@@ -22,6 +23,9 @@ class Sequencer():
       self.stepVol = [1. for i in range(self.nx)]
       self.noteVol = [1. for i in range(self.ny)]
       self.broadcast = liblo.Address(9002)
+
+   def handleGlobalVol(self, pathlist, arg):
+      self.globalVol = arg[0]
 
    def handleXY(self, pathlist, arg):
       if debug: print 'Sequencer, handleXY: ', pathlist, arg
@@ -63,7 +67,6 @@ class Sequencer():
 	   print 'about to update notevol with: ', note, vol
          self.updateNoteVol(note, vol)
 
-
    def setName(self, name):
       self.name = name
 
@@ -78,7 +81,7 @@ class Sequencer():
    def play(self):
       notes = np.where(self.gridState[self.step,:]==1)[0]
       for note in notes:
-         amp=[lr*self.stepVol[self.step]*self.noteVol[note] for lr in self.seqVol]
+         amp=[lr*self.globalVol*self.stepVol[self.step]*self.noteVol[note] for lr in self.seqVol]
          self.instrument.play(note, amp)
 
    def handleMCP(self, pathlist, arg):
@@ -208,6 +211,7 @@ class DroneFace():
    """
 
    def __init__(self, key, verbose=False):
+      self.globalVol = 0.5
       fund = pyo.midiToHz(key)
       self.freqs = [i*fund for i in range(1,5)]
       self.ratios = [5,4,2,2]
@@ -320,13 +324,16 @@ class DroneFace():
                self.automation[2:] = [0, 0]
       if debug: print 'Automation state: ', self.automation
 
+   def handleGlobalVol(self, pathlist, arg):
+      self.globalVol = arg[0]
+      for i in range(4):
+         self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
+
    def handleMCP(self, pathlist, arg):
       if debug: print 'DroneFace, handleMCP: ', pathlist, arg
-      pan = arg[0]
-      amp = arg[1]
-      mul = [amp*(1.-pan), amp*pan]
+      self.pan = [arg[1]*(1.-arg[0]), arg[1]*arg[0]]
       for i in range(4):
-         self.voices[i].setMul([lr*self.relativeMuls[i] for lr in mul])
+         self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
 
 
 
