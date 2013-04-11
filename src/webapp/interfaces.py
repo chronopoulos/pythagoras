@@ -336,16 +336,6 @@ class DroneFace():
          self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
 
 
-'''
-CXScale = []
-
-def chordexscale(i):
-  j=i%len(CXScale)
-  k=i//len(thechor)
-  print i, "CXScale: ", CXScale
-  return k*12 + CXScale[j]
-'''
-
 class ChordExplorer():
    """
    Chord Explorer class
@@ -404,28 +394,23 @@ class ChordExplorer():
       j=i%len(self.twelvescale)
       k=i//len(self.twelvescale)
       self.scale.append(k*12 + self.twelvescale[j])
-      #self.scale.append(self.twelvescale[j])
 
    def handleButton(self, pathlist, arg):
       if debug: print 'chord explorer, handleButton: ', pathlist, arg
       if (pathlist[2] == "12tones"):
         index = int(pathlist[3])
         self.twelvetones[index] = bool(arg[0])
-        for b in self.twelvetones:
-          print str(b)
       if (pathlist[2] == "degrees"):
         index = int(pathlist[3])
 	self.twelvedegrees[index] = bool(arg[0])  
-      print "here"
       if (pathlist[2] == "curtone"):
         self.curtone = int(pathlist[3])
-      #self.calcScale()
-      #self.calcDegrees()
       self.calcNotes()
-      print "twelvescale: ", self.twelvescale
-      print "degrees ", self.degrees
-      print "curtone ", self.curtone
-      print "scale ", self.scale
+      if debug:
+        print "twelvescale: ", self.twelvescale
+        print "degrees ", self.degrees
+        print "curtone ", self.curtone
+        print "scale ", self.scale
        
 
    def handleMCP(self, pathlist, arg):
