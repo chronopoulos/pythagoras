@@ -51,7 +51,6 @@ class Sequencer():
    def handleSlider(self, pathlist, arg):
       if debug: print 'Sequencer, handleSlider: ', pathlist, arg
       if pathlist[2]=='V':
-         print "V"
          if pathlist[3]=='2':
             slider = int(pathlist[4])
             value = arg[0]
@@ -357,6 +356,9 @@ class ChordExplorer():
       pass
 
    def update(self):
+      pass
+
+   def handleGlobalVol(self, pathlist, arg):
       pass
 
    def handleXY(self, pathlist, arg):
