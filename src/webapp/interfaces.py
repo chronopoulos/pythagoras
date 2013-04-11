@@ -328,3 +328,101 @@ class DroneFace():
       for i in range(4):
          self.voices[i].setMul([lr*self.relativeMuls[i] for lr in mul])
 
+
+
+class ChordExplorer():
+   """
+   Chord Explorer class
+   """
+
+   def major(i):
+      j=i%7
+      k=i//7
+      scale = [0,2,4,5,7,9,11]
+      return k*12 + scale[j]
+
+   def __init__(self, verbose=False):
+      self.verbose = verbose 
+      self.twelvetones = [False, False, False, False, False, False, False, False, False, False, False, False] 
+      self.twelvescale = []
+      self.twelvedegrees = [False, False, False, False, False, False, False, False, False, False, False, False] 
+      self.degrees = []
+      self.curtone = 0
+      self.scale = []
+
+   def setName(self, name):
+      self.name = name
+
+   def followMetro(self, metro):
+      pass
+
+   def update(self):
+      pass
+
+   def handleXY(self, pathlist, arg):
+      pass
+
+   def handleSlider(self, pathlist, arg):
+      pass
+
+   def calcScale():
+     index = 0
+     count = 0
+     self.twelvescale = []
+     for b in self.twelvetones:
+       if b:
+         self.twelvescale[count] = index
+         count = count + 1
+       index = index + 1
+
+   def calcDegrees():
+     index = 0
+     count = 0;
+     sccount = len(scale)
+     self.degrees = []
+     for b in self.twelvedegrees:
+       if b:
+         self.degrees[count] = index
+         count = count + 1
+       index = index + 1
+       if index > scount:
+	 break
+
+   def calcNotes():
+     calcScale()
+     calcDegrees()
+     self.scale = []
+     count = 0
+     for d in self.degrees:
+      i = d + self.curtone
+      j=i%count(self.twelvescale)
+      k=i//count(self.twelvescale)
+      self.scale[count] = k*12 + twelvescale[j]
+      count = count + 1
+
+
+     #  self.scale[count] = self.twelvescale(d + self.curtone)
+     #  f = pyo.midiToHz(self.key+self.scale(self.chord+triad(note)))
+
+   def handleButton(self, pathlist, arg):
+      if debug: print 'chord explorer, handleButton: ', pathlist, arg
+      if (pathlist[2] == "12tones"):
+        index = int(pathlist[3])
+        self.twelvetones[index] = bool(arg[0])
+        for b in self.twelvetones:
+          print str(b)
+      if (pathlist[2] == "degrees"):
+        index = int(pathlist[3])
+	self.degrees[index] = bool(arg[0])  
+      if (pathlist[2] == "curtone"):
+        self.curtone = int(pathlist[3])
+      self.calcNotes()
+      print "twelvescale: ", self.twelvescale
+      print "degrees ", self.degrees
+      print "curtone ", self.curtone
+      print "scale ", self.scale
+       
+
+   def handleMCP(self, pathlist, arg):
+      pass
+

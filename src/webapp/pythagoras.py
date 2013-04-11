@@ -155,6 +155,7 @@ if __name__ == '__main__':
    jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('drone', ix.DroneFace(38, verbose=verbose)))
+   jamserver.addPlayer(Player('toner', ix.ChordExplorer(verbose=verbose)))
 
    print ''
    print 'Setup successful! Now listening for messages...'
