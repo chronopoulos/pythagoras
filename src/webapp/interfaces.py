@@ -83,7 +83,7 @@ class Sequencer():
          amp=[lr*self.globalVol*self.stepVol[self.step]*self.noteVol[note] for lr in self.seqVol]
          self.instrument.play(note, amp)
 
-   def handleMCP(self, pathlist, arg):
+   def handleMixer(self, pathlist, arg):
       pan = arg[0]
       amp = arg[1]
       mul = [amp*(1.-pan), amp*pan]
@@ -213,13 +213,11 @@ class DroneFace():
       self.globalVol = 0.5
       fund = pyo.midiToHz(key)
       self.freqs = [i*fund for i in range(1,5)]
-      self.ratios = [5,4,2,2]
-      self.indices = [0]*4
+      self.ratios = [5,4,3,2]
+      self.indices = [0.5]*4
       self.relativeMuls = [0.15, 0.15, 0.30, 0.22]
       self.muls = [0*rm for rm in self.relativeMuls]
       self.dindices = [0]*4
-      self.dmuls = [0]*4
-      self.homewardBound = [False]*4
       self.voices = []
       for i in range(4):
          j=i+1
@@ -228,16 +226,15 @@ class DroneFace():
          voice.setIndex(self.indices[i])
          voice.setMul(self.muls[i])
          self.voices.append(voice)
-      self.ticker = 0
       self.speed=1./50
       self.verbose = verbose
-      self.pressed = sortedset()
       self.metro_accu = pyo.Metro(time=0.01).play()
       self.callback = pyo.TrigFunc(self.metro_accu, self.update)
       self.automation = [0,0,0,0] # 0 is nothing, 1 is linear, 2 is elliptical, 3 is homewardBound
       self.t = 0.
       self.dt = 0.01
-      self.amp = [0,0,0,0]
+      self.pos = self.indices[:]
+      self.broadcast = liblo.Address(9002)
 
    def setName(self, name):
       self.name = name
@@ -249,38 +246,45 @@ class DroneFace():
       self.t = (self.t + self.dt)%(2*np.pi)
       for i in range(4):
          if self.automation[i]==0: # no automation
-            self.indices[i] += self.dindices[i]
+            pass
          elif self.automation[i]==1: # linear
-            self.indices[i] = self.amp[i]*np.cos(self.t)
+            self.indices[i] = (np.sin(self.t)/4+1)*self.pos[i]
          elif self.automation[i]==2: # elliptical
             if (i==0) or (i==2):
-               self.indices[i] = self.amp[i]*np.cos(self.t)
+               self.indices[i] = (np.cos(self.t)/4+1)*self.pos[i]
             else:
-               self.indices[i] = self.amp[i]*np.sin(self.t)
+               self.indices[i] = (np.sin(self.t)/4+1)*self.pos[i]
          elif self.automation[i]==3: # homewardBound
-            self.dindices[i] = -self.indices[i]*self.speed
-            self.indices[i] += self.dindices[i]
+            self.indices[i] = self.indices[i]*(1.-self.speed)
          self.voices[i].setIndex(self.indices[i])
-      if self.verbose: print 'Indices, Muls, Ratios: ', self.indices, self.automation
+      if self.automation[:2] != [0,0]:
+         liblo.send(self.broadcast, self.name+'/xy/L', self.indices[0]/5, self.indices[1]/5)
+      if self.automation[2:] != [0,0]:
+         liblo.send(self.broadcast, self.name+'/xy/R', self.indices[2]/5, self.indices[3]/5)
 
    def handleXY(self, pathlist, arg):
       if debug: print 'DroneFace, handleXY: ', pathlist, arg
-      x = (arg[0]-0.5)*2
-      y = (arg[1]-0.5)*2
+      x = arg[0]*5
+      y = arg[1]*5
       if pathlist[2]=='L':
          self.handleXY_L(x,y)
       elif pathlist[2]=='R':
          self.handleXY_R(x,y)
+      if debug: print 'Automation state: ', self.automation
 
    def handleXY_L(self, x, y):
       self.automation[:2] = [0, 0]
       if debug: print 'DroneFace, handleXY_L: ', x, y
-      self.dindices[0], self.dindices[1] = x*self.speed, y*self.speed
+      self.indices[0], self.indices[1] = x, y
+      for i in range(2):
+         self.voices[i].setIndex(self.indices[i])
 
    def handleXY_R(self, x, y):
       self.automation[2:] = [0, 0]
       if debug: print 'DroneFace, handleXY_R: ', x, y
-      self.dindices[2], self.dindices[3] = x*self.speed, y*self.speed
+      self.indices[2], self.indices[3] = x, y
+      for i in range(2,4):
+         self.voices[i].setIndex(self.indices[i])
 
    def handleSlider(self, pathlist, arg):
       pass
@@ -288,39 +292,29 @@ class DroneFace():
    def handleButton(self, pathlist, arg):
       if debug: print 'Drone, handleButton: ', pathlist, arg
       if pathlist[2]=='L':
-         if pathlist[3]=='0':
-            if debug: print '0'
+         if pathlist[3]=='0':  # homeward bound
             if arg[0]==1:
                self.automation[:2] = [3, 3]
-         if pathlist[3]=='1':
+         elif pathlist[3]=='1': # linear
             if arg[0]==1:
-               self.amp = self.indices[:]
+               self.pos[:2] = self.indices[:2]
                self.automation[:2] = [1, 1]
-            elif arg[0]==0:
-               self.automation[:2] = [0, 0]
-         elif pathlist[3]=='2':
+         elif pathlist[3]=='2': # circular
             if arg[0]==1:
-               self.amp = self.indices[:]
+               self.pos[:2] = self.indices[:2]
                self.automation[:2] = [2, 2]
-            elif arg[0]==0:
-               self.automation[:2] = [0, 0]
       elif pathlist[2]=='R':
-         if pathlist[3]=='0':
-            if debug: print '0'
+         if pathlist[3]=='0':  # homeward bound
             if arg[0]==1:
                self.automation[2:] = [3, 3]
-         if pathlist[3]=='1':
+         elif pathlist[3]=='1': # linear
             if arg[0]==1:
-               self.amp = self.indices[:]
+               self.pos[2:] = self.indices[2:]
                self.automation[2:] = [1, 1]
-            elif arg[0]==0:
-               self.automation[2:] = [0, 0]
-         elif pathlist[3]=='2':
+         elif pathlist[3]=='2': # circular
             if arg[0]==1:
-               self.amp = self.indices[:]
+               self.pos[2:] = self.indices[2:]
                self.automation[2:] = [2, 2]
-            elif arg[0]==0:
-               self.automation[2:] = [0, 0]
       if debug: print 'Automation state: ', self.automation
 
    def handleGlobalVol(self, pathlist, arg):
@@ -328,7 +322,7 @@ class DroneFace():
       for i in range(4):
          self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
 
-   def handleMCP(self, pathlist, arg):
+   def handleMixer(self, pathlist, arg):
       if debug: print 'DroneFace, handleMCP: ', pathlist, arg
       self.pan = [arg[1]*(1.-arg[0]), arg[1]*arg[0]]
       for i in range(4):
@@ -342,9 +336,9 @@ class ChordExplorer():
 
    def __init__(self, scaletomod):
       self.verbose = verbose 
-      self.twelvetones = [False, False, False, False, False, False, False, False, False, False, False, False] 
+      self.twelvetones = [False]*12
       self.twelvescale = []
-      self.twelvedegrees = [False, False, False, False, False, False, False, False, False, False, False, False] 
+      self.twelvedegrees = [False]*12 
       self.degrees = []
       self.curtone = 0
       self.scale = scaletomod
@@ -404,10 +398,10 @@ class ChordExplorer():
         self.twelvetones[index] = bool(arg[0])
       if (pathlist[2] == "degrees"):
         index = int(pathlist[3])
-	self.twelvedegrees[index] = bool(arg[0])  
+        self.twelvedegrees[index] = bool(arg[0])  
       if (pathlist[2] == "curtone"):
         self.curtone = int(pathlist[3])
-      self.calcNotes()
+        self.calcNotes()
       if debug:
         print "twelvescale: ", self.twelvescale
         print "degrees ", self.degrees
@@ -415,6 +409,6 @@ class ChordExplorer():
         print "scale ", self.scale
        
 
-   def handleMCP(self, pathlist, arg):
+   def handleMixer(self, pathlist, arg):
       pass
 

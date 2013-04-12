@@ -87,8 +87,8 @@ class JamServer():
    def routeByName(self, pathstr, arg, typestr, server, usrData):
       if debug: print 'JamServer, routeByName: ', pathstr, arg
       pathlist = pathstr.split('/')
-      if pathlist[0]=='mcp':
-         self.handleMCP(pathlist, arg)
+      if pathlist[0]=='mixer':
+         self.handleMixer(pathlist, arg)
       else:
          try:
             self.players[pathlist[0]].handleMsg(pathlist, arg)
@@ -102,10 +102,10 @@ class JamServer():
       player.interface.followMetro(self.metro)
       self.players[player.name] = player
 
-   def handleMCP(self, pathlist, arg):
+   def handleMixer(self, pathlist, arg):
       if debug: print 'JamServer, handleMCP: ', pathlist, arg
       if pathlist[1]=='xy':
-         self.players[pathlist[2]].interface.handleMCP(pathlist, arg)
+         self.players[pathlist[2]].interface.handleMixer(pathlist, arg)
       elif pathlist[1]=='slider':
          if pathlist[2]=='tempo':
             bpm = 60 + 120*arg[0]
@@ -150,12 +150,13 @@ if __name__ == '__main__':
    jamscale=scales.globalscale
 
    jamserver = JamServer()
-   jamserver.addPlayer(Player('tr808', ix.Sequencer(inst.Sampler(smp.tr808), seqVol=0.15)))
+   jamserver.addPlayer(Player('tr909', ix.Sequencer(inst.Sampler(smp.tr909), seqVol=0.15)))
    jamserver.addPlayer(Player('rx21Latin', ix.Sequencer(inst.Sampler(smp.rx21Latin), seqVol=0.15)))
-   jamserver.addPlayer(Player('linndrum', ix.Sequencer(inst.Sampler(smp.linndrum), seqVol=0.15)))
-   jamserver.addPlayer(Player('koto', ix.Sequencer(inst.Sampler(smp.koto), seqVol=0.15)))
-   jamserver.addPlayer(Player('rhodes', ix.Sequencer(inst.Sampler(smp.rhodes), seqVol=0.15)))
-   jamserver.addPlayer(Player('chimes', ix.Sequencer(inst.Sampler(smp.chimes), seqVol=0.15)))
+   jamserver.addPlayer(Player('dundunba', ix.Sequencer(inst.Sampler(smp.dundunba), seqVol=0.15, nnotes=4)))
+   #jamserver.addPlayer(Player('linndrum', ix.Sequencer(inst.Sampler(smp.linndrum), seqVol=0.15)))
+   #jamserver.addPlayer(Player('koto', ix.Sequencer(inst.Sampler(smp.koto), seqVol=0.15)))
+   #jamserver.addPlayer(Player('rhodes', ix.Sequencer(inst.Sampler(smp.rhodes), seqVol=0.15)))
+   #jamserver.addPlayer(Player('chimes', ix.Sequencer(inst.Sampler(smp.chimes), seqVol=0.15)))
    jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72, scale=jamscale), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24, scale=jamscale), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60, scale=jamscale), seqVol=0.25, nnotes=16)))
