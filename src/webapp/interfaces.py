@@ -20,8 +20,8 @@ class Sequencer():
       self.step = 0
       self.gridState = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.diff = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
-      self.stepVol = [1. for i in range(self.nx)]
-      self.noteVol = [1. for i in range(self.ny)]
+      self.stepVol = [0.5 for i in range(self.nx)]
+      self.noteVol = [0.5 for i in range(self.ny)]
       self.broadcast = liblo.Address(9002)
 
    def handleGlobalVol(self, pathlist, arg):
@@ -342,6 +342,7 @@ class ChordExplorer():
       self.degrees = []
       self.curtone = 0
       self.scale = scaletomod
+      self.broadcast = liblo.Address(9002)
 
    def setName(self, name):
       self.name = name
@@ -381,32 +382,37 @@ class ChordExplorer():
          break
 
    def calcNotes(self):
-     self.calcScale()
-     self.calcDegrees()
-     del self.scale[:]
-     count = 0
-     for d in self.degrees:
-      i = d + self.curtone
-      j=i%len(self.twelvescale)
-      k=i//len(self.twelvescale)
-      self.scale.append(k*12 + self.twelvescale[j])
+      self.calcScale()
+      self.calcDegrees()
+      del self.scale[:]
+      count = 0
+      for d in self.degrees:
+         i = d + self.curtone
+         j=i%len(self.twelvescale)
+         k=i//len(self.twelvescale)
+         self.scale.append(k*12 + self.twelvescale[j])
 
    def handleButton(self, pathlist, arg):
       if debug: print 'chord explorer, handleButton: ', pathlist, arg
       if (pathlist[2] == "12tones"):
-        index = int(pathlist[3])
-        self.twelvetones[index] = bool(arg[0])
+         index = int(pathlist[3])
+         self.twelvetones[index] = bool(arg[0])
+         self.calcNotes()
       if (pathlist[2] == "degrees"):
-        index = int(pathlist[3])
-        self.twelvedegrees[index] = bool(arg[0])  
+         index = int(pathlist[3])
+         self.twelvedegrees[index] = bool(arg[0])
+         self.calcNotes()
       if (pathlist[2] == "curtone"):
-        self.curtone = int(pathlist[3])
-        self.calcNotes()
+         self.curtone = int(pathlist[3])
+         self.calcNotes()
+         for i in range(12):
+            if i != self.curtone:
+               liblo.send(self.broadcast, self.name+'/button/curtone/'+str(i), 0)
       if debug:
-        print "twelvescale: ", self.twelvescale
-        print "degrees ", self.degrees
-        print "curtone ", self.curtone
-        print "scale ", self.scale
+         print "twelvescale: ", self.twelvescale
+         print "degrees ", self.degrees
+         print "curtone ", self.curtone
+         print "scale ", self.scale
        
 
    def handleMixer(self, pathlist, arg):

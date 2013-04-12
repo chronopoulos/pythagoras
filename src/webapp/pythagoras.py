@@ -161,7 +161,7 @@ if __name__ == '__main__':
    jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24, scale=jamscale), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60, scale=jamscale), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36, scale=jamscale), seqVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('drone', ix.DroneFace(38, verbose=verbose)))
+   jamserver.addPlayer(Player('drone', ix.DroneFace(36, verbose=verbose)))
    jamserver.addPlayer(Player('toner', ix.ChordExplorer(scaletomod=scales.globscale)))
 
    print ''
