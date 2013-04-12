@@ -47,6 +47,13 @@ linndrum = [
 '../../samples/drums/linndrum/cowbell.wav'            
 ]
 
+dundunba = [
+'../../samples/drums/dundunba/dundunba.wav',
+'../../samples/drums/dundunba/kenkeni.wav',
+'../../samples/drums/dundunba/sangban.wav',
+'../../samples/drums/dundunba/sangban-mute.wav'           
+]
+
 rx21Latin = [
 '../../samples/drums/rx21Latin/conga.wav',
 '../../samples/drums/rx21Latin/bongo.wav',
