@@ -190,6 +190,7 @@ if __name__ == '__main__':
 
 
    jamserver = JamServer(bpm=120, tonality=Tonality([0,2,4,5,7,9,11]))
+   jamserver.addPlayer(Player('dpad', ix.DirectNotePlayer(inst.Sampler(smp.tr707), dpVol=0.15)))
    jamserver.addPlayer(Player('tr909', ix.Sequencer(inst.Sampler(smp.tr909), seqVol=0.15)))
    jamserver.addPlayer(Player('rx21Latin', ix.Sequencer(inst.Sampler(smp.rx21Latin), seqVol=0.15)))
    jamserver.addPlayer(Player('dundunba', ix.Sequencer(inst.Sampler(smp.dundunba), seqVol=0.15, nnotes=4)))
