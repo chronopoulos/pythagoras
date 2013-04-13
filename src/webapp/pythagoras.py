@@ -4,6 +4,7 @@ import instruments as inst
 import samplepacks as smp
 import scales, synths
 import sys
+from blist import sortedset
 
 modules = [ix, inst, smp, scales, synths]
 
@@ -73,7 +74,7 @@ class Player():
 
 class JamServer():
 
-   def __init__(self):
+   def __init__(self, bpm=120, tonality=None):
       self.OSCserver = liblo.Server(8000)
       self.OSCserver.add_method(None, None, self.routeByName)
       self.players = {} # name:player dictionary
@@ -82,7 +83,8 @@ class JamServer():
       else:
          self.AudioServer = pyo.Server().boot()
       self.AudioServer.start()
-      self.metro = pyo.Metro(time=15./120.).play()
+      self.metro = pyo.Metro(time=15./bpm).play()
+      self.tonality = tonality
 
    def routeByName(self, pathstr, arg, typestr, server, usrData):
       if debug: print 'JamServer, routeByName: ', pathstr, arg
@@ -100,6 +102,7 @@ class JamServer():
 
    def addPlayer(self, player):
       player.interface.followMetro(self.metro)
+      player.interface.setTonality(self.tonality)
       self.players[player.name] = player
 
    def handleMixer(self, pathlist, arg):
@@ -113,6 +116,45 @@ class JamServer():
          elif pathlist[2]=='volume':
             for player in self.players.values():
                player.interface.handleGlobalVol(pathlist, arg)
+
+class Tonality():
+
+   def __init__(self, scale):
+      self.scale = sortedset(scale)
+      self.m=len(self.scale)
+      self.nad = sortedset(range(self.m))
+      self.n = len(self.nad)
+      self.degree = 0
+
+   def cycleScale(self,i):
+      j=i%self.m
+      k=i//self.m
+      return k*12 + self.scale[j]
+
+   def cycleNad(self,i):
+      j=i%self.n
+      k=i//self.n
+      return k*self.m + self.nad[j]
+
+   def request(self, i):
+      return self.cycleScale(self.degree+self.cycleNad(i))
+
+   def updateScale(self, index, onoff):
+      if onoff==1:
+         self.scale.add(index)
+      else:
+         self.scale.remove(index)
+      self.m=len(self.scale)
+
+   def updateNad(self, index, onoff):
+      if onoff==1:
+         self.nad.add(index)
+      else:
+         self.nad.remove(index)
+      self.n = len(self.nad)
+
+   def updateDegree(self, degree):
+      self.degree = degree
    
 
 ############
@@ -147,22 +189,16 @@ if __name__ == '__main__':
       module.verbose = verbose
 
 
-   jamscale=scales.globalscale
-
-   jamserver = JamServer()
+   jamserver = JamServer(bpm=120, tonality=Tonality([0,2,4,5,7,9,11]))
    jamserver.addPlayer(Player('tr909', ix.Sequencer(inst.Sampler(smp.tr909), seqVol=0.15)))
    jamserver.addPlayer(Player('rx21Latin', ix.Sequencer(inst.Sampler(smp.rx21Latin), seqVol=0.15)))
    jamserver.addPlayer(Player('dundunba', ix.Sequencer(inst.Sampler(smp.dundunba), seqVol=0.15, nnotes=4)))
-   #jamserver.addPlayer(Player('linndrum', ix.Sequencer(inst.Sampler(smp.linndrum), seqVol=0.15)))
-   #jamserver.addPlayer(Player('koto', ix.Sequencer(inst.Sampler(smp.koto), seqVol=0.15)))
-   #jamserver.addPlayer(Player('rhodes', ix.Sequencer(inst.Sampler(smp.rhodes), seqVol=0.15)))
-   #jamserver.addPlayer(Player('chimes', ix.Sequencer(inst.Sampler(smp.chimes), seqVol=0.15)))
-   jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72, scale=jamscale), seqVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24, scale=jamscale), seqVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60, scale=jamscale), seqVol=0.25, nnotes=16)))
-   jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36, scale=jamscale), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('FM_hi', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=72), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('drone', ix.DroneFace(36, verbose=verbose)))
-   jamserver.addPlayer(Player('toner', ix.ChordExplorer(scaletomod=scales.globscale)))
+   jamserver.addPlayer(Player('toner', ix.Toner()))
 
    print ''
    print 'Setup successful! Now listening for messages...'

@@ -24,18 +24,23 @@ class Sampler():
       self.notes[note].setMul(amp)
       self.notes[note].out()
 
+   def setTonality(self, tonality):
+      pass
+
 class PolySynth():
    """
    Polyphonic Synth class
    """
 
-   def __init__(self, voice=synths.Square, order=4, key=60, scale=scales.majorPentatonic):
+   def __init__(self, voice=synths.Square, order=4, key=60):
       self.voices = []
       for i in range(order):
          self.voices.append(voice())
       self.poly = Poly(self.voices)
       self.key = key
-      self.scale = scale
+
+   def setTonality(self, tonality):
+      self.tonality = tonality
 
    def handleXY(self, x, y):
       if debug: print 'PolySynth, handleXY: ', x, y
@@ -53,6 +58,6 @@ class PolySynth():
          voice.handleDFT(state)
 
    def play(self, note, amp):
-      f = pyo.midiToHz(self.key+self.scale(note))
+      f = pyo.midiToHz(self.key+self.tonality.request(note))
       vn = self.poly.request()
       self.voices[vn].play(f, amp)

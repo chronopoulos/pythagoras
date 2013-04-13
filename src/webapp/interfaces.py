@@ -1,7 +1,6 @@
 import pyo, liblo
 import instruments as inst
 import numpy as np
-from blist import sortedset
 
 
 class Sequencer():
@@ -72,6 +71,9 @@ class Sequencer():
    def followMetro(self, metro):
       self.metro = metro
       self.callbackMetro = pyo.TrigFunc(self.metro, self.takeStep)
+
+   def setTonality(self, tonality):
+      self.instrument.setTonality(tonality)
 
    def takeStep(self):
       self.play()
@@ -161,49 +163,6 @@ class Sequencer():
             liblo.send(self.broadcast, self.name+'/button/SEQ/'+str(i)+'/'+str(j), 0)
 
 
-class Keyboard():
-   """
-   Keyboard class
-   Requires sortedset from the blist module
-   """
-
-   def __init__(self, instrument, maxVol=1.):
-      self.instrument = instrument
-      self.maxVol = maxVol
-      self.pressed = sortedset()
-      self.note_last = 0
- 
-   def playNext(self):
-      if len(self.pressed)==0:
-         return
-      elif self.note_last >= self.pressed[-1]:
-            note_current = self.pressed[0]
-            self.instrument.play(note_current, self.maxVol)
-            self.note_last = note_current
-      else:
-            i = 0
-            while self.pressed[i] <= self.note_last:
-               i += 1
-            note_current = self.pressed[i]
-            self.instrument.play(note_current, self.maxVol)
-            self.note_last = note_current
-
-   def takeStep(self):
-      self.playNext()
-
-   def followMetro(self, metro):
-      self.metro = metro
-      self.callbackMetro = pyo.TrigFunc(self.metro, self.takeStep)
-
-   def updatePressed(self, pathlist, arg):
-      note = int(pathlist[2][4:]) - 1
-      on = (arg[0]==1.0)
-      if on:
-         self.pressed.add(note)
-      else:
-         self.pressed.remove(note)
-      if debug: print self.pressed
-
 class DroneFace():
    """
    Drone interface class
@@ -240,6 +199,9 @@ class DroneFace():
       self.name = name
 
    def followMetro(self, metro):
+      pass
+
+   def setTonality(self, tonality):
       pass
 
    def update(self):
@@ -329,20 +291,24 @@ class DroneFace():
          self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
 
 
-class ChordExplorer():
-   """
-   Chord Explorer class
-   """
+class Toner():
 
-   def __init__(self, scaletomod):
-      self.verbose = verbose 
-      self.twelvetones = [False]*12
-      self.twelvescale = []
-      self.twelvedegrees = [False]*12 
-      self.degrees = []
-      self.curtone = 0
-      self.scale = scaletomod
+   def __init__(self):
       self.broadcast = liblo.Address(9002)
+
+   def handleButton(self, pathlist, arg):
+      if debug: print 'Toner, handleButton: ', pathlist, arg
+      if (pathlist[2] == "12tones"):
+         self.tonality.updateScale(int(pathlist[3]), arg[0])
+      elif (pathlist[2] == "degrees"):
+         self.tonality.updateNad(int(pathlist[3]), arg[0])
+      elif (pathlist[2] == "curtone"):
+         if arg[0]==1:
+            degree = int(pathlist[3])
+            self.tonality.updateDegree(degree)
+            for i in range(12):
+               if i != degree:
+                  liblo.send(self.broadcast, self.name+'/button/curtone/'+str(i), 0)
 
    def setName(self, name):
       self.name = name
@@ -350,8 +316,13 @@ class ChordExplorer():
    def followMetro(self, metro):
       pass
 
-   def update(self):
-      pass
+   def setTonality(self, tonality):
+      self.tonality = tonality
+      for i in self.tonality.scale:
+         liblo.send(self.broadcast, self.name+'/button/12tones/'+str(i), 1)
+      for i in self.tonality.nad:
+         liblo.send(self.broadcast, self.name+'/button/degrees/'+str(i), 1)
+      liblo.send(self.broadcast, self.name+'/button/curtone/'+str(self.tonality.degree), 1)
 
    def handleGlobalVol(self, pathlist, arg):
       pass
@@ -360,61 +331,5 @@ class ChordExplorer():
       pass
 
    def handleSlider(self, pathlist, arg):
-      pass
-
-   def calcScale(self):
-     index = 0
-     self.twelvescale = []
-     for b in self.twelvetones:
-       if b:
-         self.twelvescale.append(index)
-       index = index + 1
-
-   def calcDegrees(self):
-     index = 0
-     scount = len(self.twelvescale)
-     self.degrees = []
-     for b in self.twelvedegrees:
-       if b:
-         self.degrees.append(index)
-       index = index + 1
-       if index > scount:
-         break
-
-   def calcNotes(self):
-      self.calcScale()
-      self.calcDegrees()
-      del self.scale[:]
-      count = 0
-      for d in self.degrees:
-         i = d + self.curtone
-         j=i%len(self.twelvescale)
-         k=i//len(self.twelvescale)
-         self.scale.append(k*12 + self.twelvescale[j])
-
-   def handleButton(self, pathlist, arg):
-      if debug: print 'chord explorer, handleButton: ', pathlist, arg
-      if (pathlist[2] == "12tones"):
-         index = int(pathlist[3])
-         self.twelvetones[index] = bool(arg[0])
-         self.calcNotes()
-      if (pathlist[2] == "degrees"):
-         index = int(pathlist[3])
-         self.twelvedegrees[index] = bool(arg[0])
-         self.calcNotes()
-      if (pathlist[2] == "curtone"):
-         self.curtone = int(pathlist[3])
-         self.calcNotes()
-         for i in range(12):
-            if i != self.curtone:
-               liblo.send(self.broadcast, self.name+'/button/curtone/'+str(i), 0)
-      if debug:
-         print "twelvescale: ", self.twelvescale
-         print "degrees ", self.degrees
-         print "curtone ", self.curtone
-         print "scale ", self.scale
-       
-
-   def handleMixer(self, pathlist, arg):
       pass
 
