@@ -162,6 +162,62 @@ class Sequencer():
          for j in range(self.ny):
             liblo.send(self.broadcast, self.name+'/button/SEQ/'+str(i)+'/'+str(j), 0)
 
+class DirectNotePlayer():
+   """
+   DirectNotePlayer class
+   """
+
+   def __init__(self, instrument, dpVol=0.25):
+      self.globalVol = 0.5
+      self.instrument = instrument
+      self.dpVol = [dpVol]*2
+      self.broadcast = liblo.Address(9002)
+
+   def handleGlobalVol(self, pathlist, arg):
+      self.globalVol = arg[0]
+
+   def handleXY(self, pathlist, arg):
+      if debug: print 'DirectNotePlayer, handleXY: ', pathlist, arg
+      x = arg[0]
+      y = arg[1]
+      if pathlist[2]=='thexy':
+         self.instrument.handleXY(x,y)
+
+   def handleButton(self, pathlist, arg):
+      if debug: print 'DirectNotePlayer, handleButton: ', pathlist, arg
+      if pathlist[2]=='note':
+         note = int(pathlist[3])
+         state = arg[0]
+         if (state == 1):
+           amp=[lr*self.globalVol for lr in self.dpVol]
+           self.instrument.play(note, amp)
+
+   def handleSlider(self, pathlist, arg):
+      if debug: print 'DirecNotePlayer, handleSlider: ', pathlist, arg
+
+   def setName(self, name):
+      self.name = name
+
+   def followMetro(self, metro):
+      pass
+
+   def setTonality(self, tonality):
+      self.instrument.setTonality(tonality)
+
+   def takeStep(self):
+      pass
+
+   def play(self):
+      pass
+
+   def handleMixer(self, pathlist, arg):
+      pan = arg[0]
+      amp = arg[1]
+      mul = [amp*(1.-pan), amp*pan]
+      self.seqVol = mul
+
+   def clear(self):
+      pass
 
 class DroneFace():
    """
