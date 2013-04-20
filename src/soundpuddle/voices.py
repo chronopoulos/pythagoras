@@ -65,7 +65,20 @@ class Square():
       self.trig.play()
 
 
-      
+class Spoke():
+   """
+   Spoke class, a voice for the soundpuddle
+   """
+
+   def __init__(self, freq):
+      self.trig = pyo.Trig()
+      decaytable = pyo.LinTable(list=[(0, 1.0), (8191, 0.0)])
+      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=0.2)
+      self.osc = pyo.Sine(freq=freq, mul=self.env).mix(2)
+      self.output = self.osc.out()
+
+   def play(self):
+      self.trig.play()
 
    
 

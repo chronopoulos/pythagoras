@@ -38,9 +38,9 @@ def parse_clargs():
 
 class Player():
 
-    def __init__(self, name, jsfile, instrument):
+    def __init__(self, name, controller, instrument):
         self.name = name
-        self.controller = logitech.Gamepad(jsfile)
+        self.controller = controller
         self.instrument = instrument
         self.controller.handlers = self.instrument.handlers
 
@@ -100,9 +100,10 @@ if __name__=='__main__':
 
     ####
 
-    jamserver = JamServer()
-    #jamserver.addPlayer(Player('rhythmbox', '/dev/input/js0', inst.RhythmBox(inst.Sampler(samp.dundunba))))
+    jamserver = JamServer(bpm=100)
+    jamserver.addPlayer(Player('rhythmbox', logitech.Rainbow('/dev/input/js1'), inst.RhythmBox(inst.Sampler(samp.dundunba))))
     #jamserver.addPlayer(Player('drone', '/dev/input/js1', inst.Drone(36)))
     jamserver.addPlayer(Player('droplets', '/dev/input/js1', inst.Droplets()))
+    #jamserver.addPlayer(Player('chris', logitech.Rainbow('/dev/input/js2'), inst.Melodizer()  ))
     jamserver.start()
 

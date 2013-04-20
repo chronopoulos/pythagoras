@@ -3,7 +3,7 @@ import instruments as inst
 import numpy as np
 from blist import sortedset
 import random
-from voices import FM, Droplet
+import voices
 import scales
 from poly import Poly
 from pprint import pprint
@@ -11,41 +11,104 @@ from random import random
 
 
 class Melodizer():
-   """
-   Arpeggiator class
-   """
+    """
+    Melodizer class
+    """
 
-   def __init__(self, globalMetro, key=60, scale=scales.major):
-      self.voices = []
-      for i in range(4):
-         self.voices.append(FM())
-      self.poly = Poly(self.voices)
-      self.key = key
-      self.scale = scale
-      self.callback = pyo.TrigFunc(globalMetro, self.playNext)
-      self.last = 0
-      self.jump = [-2,-1,0,1,2]
+    def __init__(self, key=60, scale=scales.major):
+        self.voices = []
+        for i in range(4):
+            self.voices.append(voices.Square())
+        self.poly = Poly(self.voices)
+        self.key = key
+        self.scale = scale
+        self.currentNote = 0
+        self.pitchBend = 0
+        self.pressed = False
+        self.handlers = {
+                        'LJLR' : self.handle_LJLR,
+                        'LJUD' : self.handle_LJUD,
+                        'RJLR' : self.handle_RJLR,
+                        'RJUD' : self.handle_RJUD,
+                        'L1' : self.handle_L1,
+                        'R1' : self.handle_R1,
+                        'L2' : self.handle_L2,
+                        'R2' : self.handle_R2,
+                        'B1' : self.handle_B1,
+                        'B2' : self.handle_B2,
+                        'B3' : self.handle_B3,
+                        'B4' : self.handle_B4,
+                        'DPLR' : self.handle_DPLR,
+                        'DPUD' : self.handle_DPUD,
+                        }
+        low = -0.98828125
+        high = 0.99609375
+        self.add = -low
+        self.mul = high-low
 
-   def playNext(self):
-      current = self.last + random.choice(self.jump)
-      freq = pyo.midiToHz(self.key+self.scale(current))
-      self.play(freq, 0.25)
-      self.last = current
+    def followMetro_rhythm(self, metro):
+        self.metro = metro
+        #self.callback = pyo.TrigFunc(self.metro, self.play)
 
-   def play(self, freq, amp):
-      vn = self.poly.request()
-      self.voices[vn].play(freq, amp)
+    def followMetro_ctrl(self, metro):
+        pass
 
-   def handleFader2(self, value):
-      if debug: print 'Arpeggiator, handleFader2: ', value
-      chord = int(value*8)
-      print chord
-      self.chord = chord
+    def handle_LJLR(self, *args):
+        pass
 
-   def handleXY(self, x, y):
-      if debug: print 'PolySynth, handleXY: ', x, y
-      for voice in self.voices:
-         voice.handleXY(x,y)
+    def handle_LJUD(self, *args):
+        pass
+
+    def handle_RJLR(self, *args):
+        pass
+
+    def handle_RJUD(self, *args):
+        pass
+
+    def handle_L1(self, *args):
+        pass
+
+    def handle_R1(self, *args):
+        pass
+
+    def handle_L2(self, value):
+        if debug: print 'Melodizer, handle_L2: ', value
+        self.pitchBend = -(self.add + value)*2/self.mul
+        print 'pitchbend = ', self.pitchBend
+
+    def handle_R2(self, value):
+        if debug: print 'Melodizer, handle_R2: ', value
+        dmidi = (self.add + value)*2/self.mul
+        freq = pyo.midiToHz(self.key+self.scale(self.currentNote)+dmidi)
+        self.voices[self.vn].setFreq(freq)
+
+    def handle_B1(self, value):
+        if value==1:
+            self.play()
+
+    def handle_B2(self, *args):
+        pass
+
+    def handle_B3(self, *args):
+        pass
+
+    def handle_B4(self, *args):
+        pass
+
+    def handle_DPLR(self, value):
+        if debug: print 'Melodizer, handle_DPLR: ', value
+        if value !=0:
+            self.currentNote += value
+
+    def handle_DPUD(self, value):
+        if debug: print 'Melodizer, handle_DPUD: ', value
+        if value !=0:
+            self.currentNote += 2*value
+
+    def play(self):
+        self.vn = self.poly.request()
+        freq = pyo.midiToHz(self.key+self.scale(self.currentNote))
+        self.voices[self.vn].play(freq, 0.25)
 
 
 class RandomTick():
@@ -135,7 +198,7 @@ class RhythmBox():
     """
     RhythmBox class
     """
-    def __init__(self, sampler, loop=16):
+    def __init__(self, sampler, loop=15):
         self.sampler=sampler
         self.step = 0
         self.loop = loop
@@ -243,7 +306,7 @@ class WaterPan():
     def __init__(self):
         self.metro = pyo.Metro(time=5+5*random()).play()
         self.freq = 500 + random()*10
-        self.droplet = Droplet(self.freq)
+        self.droplet = voices.Droplet(self.freq)
         self.volpan = [random(), random()]
         self.callback = pyo.TrigFunc(self.metro, self.drip)
 
@@ -555,6 +618,22 @@ class Keyboard():
    def followMetro(self, metro):
       self.metro = metro
       self.callbackMetro = pyo.TrigFunc(self.metro, self.takeStep)
+
+
+def cyclicDistance(a, b, n=7):
+    dist = abs(b-a)
+    if dist > n//2:
+        dist = n -dist
+    return dist
+
+
+class HarmonySpace():
+
+    def __init__(self):
+        self.chords = {0:'ohai'}
+        self.current = 0
+        self.voices = [voices.FM() for i in range(4)]
+
 
 ###
 #####

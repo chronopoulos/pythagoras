@@ -233,29 +233,6 @@ class Keyboard():
       self.callbackMetro = pyo.TrigFunc(self.metro, self.takeStep)
 
 
-class Harmony():
 
-   def __init__(self):
-      self.scale = [0,2,4,7,9]
-      self.n=len(self.scale)
-      self.mad = [0,2,4]
-      self.m = len(self.mad)
-      self.degree = 0
-
-   def requestScale(self,i):
-      j=i%self.n
-      k=i//self.n
-      return k*12 + self.scale[j]
-
-   def requestMad(self,i):
-      j=i%self.m
-      k=i//self.m
-      notes = [0,2,4]
-      return k*self.n + notes[j]
-
-class Toner():
-
-   def __init__(self, globalScale):
-      pass
 
 
