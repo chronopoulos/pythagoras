@@ -398,7 +398,7 @@ class Toner():
          liblo.send(broadcast, self.name+'/button/12tones/'+str(i), 1)
       for i in self.tonality.nad:
          liblo.send(broadcast, self.name+'/button/degrees/'+str(i), 1)
-      liblo.send(broadcast, self.name+'/button/curtone'+str(self.tonality.degree), 1)
+      liblo.send(broadcast, self.name+'/button/curtone/'+str(self.tonality.degree), 1)
 
    def handleGlobalVol(self, pathlist, arg):
       pass
