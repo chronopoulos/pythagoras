@@ -182,11 +182,16 @@ if __name__ == '__main__':
       print 'Setting verbose = False'
       verbose = False
 
+   broadcast = liblo.Address(9002)
+   #broadcast = liblo.Address('192.168.1.133', 9002)
+
    # distribute global variables
    for module in modules:
       module.debug = debug
       module.jack = jack
       module.verbose = verbose
+      module.broadcast = broadcast
+
 
    jamserver = JamServer(bpm=120, tonality=Tonality([0,2,4,5,7,9,11]))
    jamserver.addPlayer(Player('dpad', ix.DirectNotePlayer(inst.Sampler(smp.tr707), dpVol=0.15)))

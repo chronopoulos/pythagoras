@@ -21,14 +21,13 @@ class Sequencer():
       self.diff = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.stepVol = [0.5 for i in range(self.nx)]
       self.noteVol = [0.5 for i in range(self.ny)]
-      self.broadcast = liblo.Address('192.168.1.133', 9002)
 
    def increaseLoop(self):
       pad = np.array([0]*self.ny).reshape(1,self.ny)
       self.gridState = np.concatenate((self.gridState,pad), axis=0)
       self.stepVol.append(0.5)
       self.nx += 1
-      liblo.send(self.broadcast, self.name+'/cmd/loopc', self.nx)
+      liblo.send(broadcast, self.name+'/cmd/loopc', self.nx)
       if debug: print 'Sequencer, increaseLoop, new gridstate: ', self.gridState
 
    def decreaseLoop(self):
@@ -38,10 +37,9 @@ class Sequencer():
       print 'hello'
       self.stepVol = self.stepVol[:self.nx]
       print 'aloha'
-      liblo.send(self.broadcast, self.name+'/cmd/loopc', self.nx)
+      liblo.send(broadcast, self.name+'/cmd/loopc', self.nx)
       print 'hola'
       if debug: print 'Sequencer, decreaseLoop, new gridstate: ', self.gridState
-      
 
    def handleGlobalVol(self, pathlist, arg):
       self.globalVol = arg[0]
@@ -151,7 +149,7 @@ class Sequencer():
       if n>0:
          for i in range(n):
             value = int(self.diff[xwhere[i],ywhere[i]]==1)
-            liblo.send(self.broadcast, self.name+'/button/SEQ/'+str(xwhere[i])+'/'+str(ywhere[i]), value)
+            liblo.send(broadcast, self.name+'/button/SEQ/'+str(xwhere[i])+'/'+str(ywhere[i]), value)
 
    def sendDiff_bundle(self):
       xwhere, ywhere = np.where(self.diff != 0)
@@ -161,7 +159,7 @@ class Sequencer():
          for i in range(n):
             value = int(self.diff[xwhere[i],ywhere[i]]==1)
             difflist += [xwhere[i],ywhere[i],value]
-         liblo.send(self.broadcast, '/mutation/diff', difflist)
+         liblo.send(broadcast, '/mutation/diff', difflist)
 
    def updateGridState(self, step, note, state):
       if debug: print 'Sequencer, updateGridState', step, note, state
@@ -184,7 +182,7 @@ class Sequencer():
       # TODO bundle these messages into one
       for i in range(self.nx):
          for j in range(self.ny):
-            liblo.send(self.broadcast, self.name+'/button/SEQ/'+str(i)+'/'+str(j), 0)
+            liblo.send(broadcast, self.name+'/button/SEQ/'+str(i)+'/'+str(j), 0)
 
 class DirectNotePlayer():
    """
@@ -300,9 +298,9 @@ class DroneFace():
             self.indices[i] = self.indices[i]*(1.-self.speed)
          self.voices[i].setIndex(self.indices[i])
       if self.automation[:2] != [0,0]:
-         liblo.send(self.broadcast, self.name+'/xy/L', self.indices[0]/5, self.indices[1]/5)
+         liblo.send(broadcast, self.name+'/xy/L', self.indices[0]/5, self.indices[1]/5)
       if self.automation[2:] != [0,0]:
-         liblo.send(self.broadcast, self.name+'/xy/R', self.indices[2]/5, self.indices[3]/5)
+         liblo.send(broadcast, self.name+'/xy/R', self.indices[2]/5, self.indices[3]/5)
 
    def handleXY(self, pathlist, arg):
       if debug: print 'DroneFace, handleXY: ', pathlist, arg
@@ -388,7 +386,7 @@ class Toner():
             self.tonality.updateDegree(degree)
             for i in range(12):
                if i != degree:
-                  liblo.send(self.broadcast, self.name+'/button/curtone/'+str(i), 0)
+                  liblo.send(broadcast, self.name+'/button/curtone/'+str(i), 0)
 
    def setName(self, name):
       self.name = name
@@ -399,10 +397,9 @@ class Toner():
    def setTonality(self, tonality):
       self.tonality = tonality
       for i in self.tonality.scale:
-         liblo.send(self.broadcast, self.name+'/button/12tones/'+str(i), 1)
+         liblo.send(broadcast, self.name+'/button/12tones/'+str(i), 1)
       for i in self.tonality.nad:
-         liblo.send(self.broadcast, self.name+'/button/degrees/'+str(i), 1)
-      liblo.send(self.broadcast, self.name+'/button/curtone/'+str(self.tonality.degree), 1)
+         liblo.send(broadcast, self.name+'/button/degrees/'+str(i), 1)
 
    def handleGlobalVol(self, pathlist, arg):
       pass
