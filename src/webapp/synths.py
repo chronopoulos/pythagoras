@@ -44,7 +44,7 @@ class Additive():
 
    def __init__(self):
       self.trig = pyo.Trig()
-      decaytable = pyo.LinTable(list=[(0, 1.0), (8191, 0.0)])
+      decaytable = pyo.LinTable(list=[(0,0), (100, 1.0), (8191, 0.0)])
       self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=[0,0])
       self.spectrum = [1.]+[0.]*15  # 16 total
       self.waveform = pyo.HarmTable(self.spectrum)
@@ -99,6 +99,7 @@ class FM():
    def __init__(self):
       self.trig = pyo.Trig()
       self.envTableList = [(i*8192/15,1./(i+1)) for i in range(16)]
+      self.envTableList[0] = (0,0)   # finite attack
       self.envTable = pyo.CurveTable(self.envTableList)
       self.env = pyo.TrigEnv(self.trig, table=self.envTable, dur=0.6, mul=[0.,0.])
       self.fm = pyo.FM(carrier=[0.,0.], mul=self.env, ratio=1, index=4)

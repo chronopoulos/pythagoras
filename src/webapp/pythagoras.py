@@ -188,7 +188,6 @@ if __name__ == '__main__':
       module.jack = jack
       module.verbose = verbose
 
-
    jamserver = JamServer(bpm=120, tonality=Tonality([0,2,4,5,7,9,11]))
    jamserver.addPlayer(Player('dpad', ix.DirectNotePlayer(inst.Sampler(smp.tr707), dpVol=0.15)))
    jamserver.addPlayer(Player('tr909', ix.Sequencer(inst.Sampler(smp.tr909), seqVol=0.15)))
@@ -200,6 +199,7 @@ if __name__ == '__main__':
    jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('drone', ix.DroneFace(36, verbose=verbose)))
    jamserver.addPlayer(Player('toner', ix.Toner()))
+
 
    print ''
    print 'Setup successful! Now listening for messages...'
