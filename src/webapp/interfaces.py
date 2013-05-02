@@ -104,18 +104,8 @@ class Sequencer():
       self.play()
 
    def play(self):
-      if self.name=='FM_hi':
-         print self.name+', Sequencer, Play: '
-         print np.shape(self.gridState)
-         print self.step
-         print self.gridState
       notes = np.where(self.gridState[self.step,:]==1)[0]
       for note in notes:
-         print '~~~'
-         print note
-         print self.stepVol
-         print self.noteVol
-         print self.seqVol
          amp=[lr*self.globalVol*self.stepVol[self.step]*self.noteVol[note] for lr in self.seqVol]
          self.instrument.play(note, amp)
 
