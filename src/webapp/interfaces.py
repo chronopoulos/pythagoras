@@ -21,7 +21,27 @@ class Sequencer():
       self.diff = np.array([0]*self.nx*self.ny).reshape((self.nx,self.ny))
       self.stepVol = [0.5 for i in range(self.nx)]
       self.noteVol = [0.5 for i in range(self.ny)]
-      self.broadcast = liblo.Address(9002)
+      self.broadcast = liblo.Address('192.168.1.133', 9002)
+
+   def increaseLoop(self):
+      pad = np.array([0]*self.ny).reshape(1,self.ny)
+      self.gridState = np.concatenate((self.gridState,pad), axis=0)
+      self.stepVol.append(0.5)
+      self.nx += 1
+      liblo.send(self.broadcast, self.name+'/cmd/loopc', self.nx)
+      if debug: print 'Sequencer, increaseLoop, new gridstate: ', self.gridState
+
+   def decreaseLoop(self):
+      self.nx -= 1
+      print 'ohai'
+      self.gridState = self.gridState[:self.nx,:]
+      print 'hello'
+      self.stepVol = self.stepVol[:self.nx]
+      print 'aloha'
+      liblo.send(self.broadcast, self.name+'/cmd/loopc', self.nx)
+      print 'hola'
+      if debug: print 'Sequencer, decreaseLoop, new gridstate: ', self.gridState
+      
 
    def handleGlobalVol(self, pathlist, arg):
       self.globalVol = arg[0]
@@ -46,6 +66,10 @@ class Sequencer():
          self.conway = (arg[0]==1)
       elif pathlist[2]=='clear':
          if arg[0]==1: self.clear()
+      elif pathlist[2]=='more':
+         if arg[0]==1: self.increaseLoop()
+      elif pathlist[2]=='fewer':
+         if arg[0]==1: self.decreaseLoop()
 
    def handleSlider(self, pathlist, arg):
       if debug: print 'Sequencer, handleSlider: ', pathlist, arg
@@ -76,12 +100,22 @@ class Sequencer():
       self.instrument.setTonality(tonality)
 
    def takeStep(self):
-      self.play()
       self.advance()
+      self.play()
 
    def play(self):
+      if self.name=='FM_hi':
+         print self.name+', Sequencer, Play: '
+         print np.shape(self.gridState)
+         print self.step
+         print self.gridState
       notes = np.where(self.gridState[self.step,:]==1)[0]
       for note in notes:
+         print '~~~'
+         print note
+         print self.stepVol
+         print self.noteVol
+         print self.seqVol
          amp=[lr*self.globalVol*self.stepVol[self.step]*self.noteVol[note] for lr in self.seqVol]
          self.instrument.play(note, amp)
 
@@ -214,7 +248,7 @@ class DirectNotePlayer():
       pan = arg[0]
       amp = arg[1]
       mul = [amp*(1.-pan), amp*pan]
-      self.seqVol = mul
+      self.dpVol = mul
 
    def clear(self):
       pass
@@ -249,7 +283,7 @@ class DroneFace():
       self.t = 0.
       self.dt = 0.01
       self.pos = self.indices[:]
-      self.broadcast = liblo.Address(9002)
+      self.broadcast = liblo.Address('192.168.1.133', 9002)
 
    def setName(self, name):
       self.name = name
@@ -344,13 +378,13 @@ class DroneFace():
       if debug: print 'DroneFace, handleMCP: ', pathlist, arg
       self.pan = [arg[1]*(1.-arg[0]), arg[1]*arg[0]]
       for i in range(4):
-         self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
+         self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol/5 for lr in self.pan])
 
 
 class Toner():
 
    def __init__(self):
-      self.broadcast = liblo.Address(9002)
+      self.broadcast = liblo.Address('192.168.1.133', 9002)
 
    def handleButton(self, pathlist, arg):
       if debug: print 'Toner, handleButton: ', pathlist, arg

@@ -1,0 +1,32 @@
+#N canvas 593 178 711 719 10;
+#X obj 111 189 dac~;
+#X obj 110 59 sampler;
+#N canvas 0 0 450 300 (subpatch) 0;
+#X array magnitude 64 float 3;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+#X coords 0 1 64 -1 200 140 1 0 0;
+#X restore 418 315 graph;
+#X obj 236 442 tabwrite~ magnitude;
+#X obj 238 263 *~;
+#X obj 266 263 *~;
+#X obj 238 294 +~;
+#X obj 237 324 sqrt~;
+#X obj 337 165 osc~;
+#X obj 378 114 hsl 128 15 0 1000 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 2800 1;
+#X obj 238 223 rfft~;
+#X connect 1 0 0 0;
+#X connect 1 1 0 1;
+#X connect 1 1 10 0;
+#X connect 4 0 6 0;
+#X connect 5 0 6 1;
+#X connect 6 0 7 0;
+#X connect 7 0 3 0;
+#X connect 8 0 0 1;
+#X connect 8 0 10 0;
+#X connect 9 0 8 0;
+#X connect 10 0 4 0;
+#X connect 10 0 4 1;
+#X connect 10 1 5 0;
+#X connect 10 1 5 1;
