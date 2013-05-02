@@ -24,7 +24,8 @@ class Sequencer():
 
    def increaseLoop(self):
       pad = np.array([0]*self.ny).reshape(1,self.ny)
-      self.gridState = np.concatenate((self.gridState,pad), axis=0)
+      self.gridState = np.concatenate((self.gridState, pad), axis=0)
+      self.diff = np.concatenate((self.diff, pad), axis=0)
       self.stepVol.append(0.5)
       self.nx += 1
       liblo.send(broadcast, self.name+'/cmd/loopc', self.nx)
@@ -32,13 +33,10 @@ class Sequencer():
 
    def decreaseLoop(self):
       self.nx -= 1
-      print 'ohai'
       self.gridState = self.gridState[:self.nx,:]
-      print 'hello'
+      self.diff = self.diff[:self.nx,:]
       self.stepVol = self.stepVol[:self.nx]
-      print 'aloha'
       liblo.send(broadcast, self.name+'/cmd/loopc', self.nx)
-      print 'hola'
       if debug: print 'Sequencer, decreaseLoop, new gridstate: ', self.gridState
 
    def handleGlobalVol(self, pathlist, arg):
