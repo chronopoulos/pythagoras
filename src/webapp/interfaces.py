@@ -372,7 +372,7 @@ class DroneFace():
 class Toner():
 
    def __init__(self):
-      self.broadcast = liblo.Address('192.168.1.133', 9002)
+      pass
 
    def handleButton(self, pathlist, arg):
       if debug: print 'Toner, handleButton: ', pathlist, arg
@@ -400,6 +400,7 @@ class Toner():
          liblo.send(broadcast, self.name+'/button/12tones/'+str(i), 1)
       for i in self.tonality.nad:
          liblo.send(broadcast, self.name+'/button/degrees/'+str(i), 1)
+      liblo.send(broadcast, self.name+'/button/curtone'+str(self.tonality.degree), 1)
 
    def handleGlobalVol(self, pathlist, arg):
       pass
