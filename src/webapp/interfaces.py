@@ -358,7 +358,7 @@ class DroneFace():
    def handleGlobalVol(self, pathlist, arg):
       self.globalVol = arg[0]
       for i in range(4):
-         self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
+         self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol/5 for lr in self.pan])
 
    def handleMixer(self, pathlist, arg):
       if debug: print 'DroneFace, handleMixer: ', pathlist, arg
