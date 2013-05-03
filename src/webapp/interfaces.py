@@ -269,7 +269,7 @@ class DroneFace():
       self.t = 0.
       self.dt = 0.01
       self.pos = self.indices[:]
-      self.broadcast = liblo.Address('192.168.1.133', 9002)
+      self.pan = [0,0]
 
    def setName(self, name):
       self.name = name
@@ -361,7 +361,7 @@ class DroneFace():
          self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol for lr in self.pan])
 
    def handleMixer(self, pathlist, arg):
-      if debug: print 'DroneFace, handleMCP: ', pathlist, arg
+      if debug: print 'DroneFace, handleMixer: ', pathlist, arg
       self.pan = [arg[1]*(1.-arg[0]), arg[1]*arg[0]]
       for i in range(4):
          self.voices[i].setMul([lr*self.relativeMuls[i]*self.globalVol/5 for lr in self.pan])
