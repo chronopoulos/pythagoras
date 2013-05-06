@@ -1,4 +1,4 @@
-import pygame, sys, os, time, string
+import pygame, sys, os, time, string, liblo
 import numpy as np
 from pygame.locals import *
 
@@ -13,7 +13,6 @@ black = 0,0,0
 alphabet = {}
 for i in range(24):
     alphabet[string.lowercase[i]] = i
-
 
 
 class RadiatingParticle():
@@ -37,6 +36,7 @@ class RadiatingParticle():
     def isGone(self):
         return (not 0 <= self.xy[0] <= self.appSize[0]) or (not 0 <= self.xy[1] <= self.appSize[1])
 
+
 class SoundPuddle():
 
     def __init__(self, size=(600,600)):
@@ -51,14 +51,15 @@ class SoundPuddle():
         ###
         self.drawLines()
         pygame.display.flip()
+        self.OSCserver = liblo.Server(8000)
+        self.OSCserver.add_method(None, None, self.handleOSC)
 
     def drawLines(self):
         for i in range(24):
             endpoint =  tuple([int(self.center[j]+self.spokes[i][j]*self.radius) for j in range(2)])
             pygame.draw.line(self.screen, white, self.center, endpoint)
 
-
-    def handle(self, events):
+    def handlePyGame(self, events):
         for event in events:
             if event.type == QUIT:
                 self.gracefulExit()
@@ -70,8 +71,13 @@ class SoundPuddle():
                     print 'Key unbound'
             else:
                 pass
-                #print 'Unbound event:'
-                #print event
+
+    def handleOSC(self, pathstr, arg, typestr, server, usrData):
+        magnitude = np.array(arg)
+        iwhere = np.where(magnitude > 1000)
+        for i in iwhere[0]:
+            print 'Launching: ', i
+            self.launch(self.spokes[i%24])
 
     def takeStep(self):
         for particle in self.particles:
@@ -84,11 +90,11 @@ class SoundPuddle():
                 gone.append(particle)
         for particle in gone:
             self.particles.remove(particle)
-            print 'nparticles = ', len(self.particles)
 
     def mainLoop(self):
         while True:
-            self.handle(pygame.event.get())
+            self.handlePyGame(pygame.event.get())
+            self.OSCserver.recv(46.439909)
             self.screen.fill(black)
             self.drawLines()
             self.takeStep()
@@ -96,17 +102,14 @@ class SoundPuddle():
             for particle in self.particles:
                 particle.display(self.screen)
             pygame.display.flip()
-            time.sleep(0.03)
 
     def gracefulExit(self):
         pygame.quit()
         sys.exit()
 
-
     def launch(self, spoke):
         self.particles.append(RadiatingParticle(self.size, spoke))
         print 'nparticles = ', len(self.particles)
-
 
 
 if __name__ == '__main__':
