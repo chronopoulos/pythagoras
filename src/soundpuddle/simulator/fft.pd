@@ -1,26 +1,26 @@
-#N canvas 610 158 894 383 10;
-#X obj 144 37 sampler;
-#X obj 146 135 rfft~;
-#X obj 147 194 *~;
-#X obj 174 194 *~;
-#X obj 147 232 +~;
-#X obj 146 280 tabsend~ magnitude;
-#X obj 13 97 table magnitude;
-#X obj 14 40 block~ 2048;
-#X obj 145 102 ave~;
-#X obj 348 237 sendOSC;
-#X msg 365 183 connect localhost 8000;
-#X floatatom 348 270 5 0 0 0 - - -;
-#X floatatom 387 270 5 0 0 0 - - -;
-#X obj 348 89 tabdump magnitude;
-#X obj 348 115 list prepend /this/is/the/path;
-#X obj 348 155 list trim;
-#X obj 348 136 list prepend send;
-#X obj 348 61 metro 46.4399;
-#X obj 348 38 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#N canvas 610 159 894 599 10;
+#X obj 464 533 sampler;
+#X obj 146 181 rfft~;
+#X obj 147 240 *~;
+#X obj 174 240 *~;
+#X obj 147 278 +~;
+#X obj 146 326 tabsend~ magnitude;
+#X obj 13 143 table magnitude;
+#X obj 14 86 block~ 2048;
+#X obj 145 148 ave~;
+#X obj 348 283 sendOSC;
+#X msg 365 229 connect localhost 8000;
+#X floatatom 348 316 5 0 0 0 - - -;
+#X floatatom 387 316 5 0 0 0 - - -;
+#X obj 348 135 tabdump magnitude;
+#X obj 348 161 list prepend /this/is/the/path;
+#X obj 348 201 list trim;
+#X obj 348 182 list prepend send;
+#X obj 348 107 metro 46.4399;
+#X obj 348 84 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X connect 0 0 8 0;
-#X connect 0 1 8 1;
+#X msg 557 494 /home/chrono/music/samples/kalimbaphrases/loop1.wav
+;
 #X connect 1 0 2 0;
 #X connect 1 0 2 1;
 #X connect 1 1 3 0;
@@ -38,3 +38,4 @@
 #X connect 16 0 15 0;
 #X connect 17 0 13 0;
 #X connect 18 0 17 0;
+#X connect 19 0 0 1;

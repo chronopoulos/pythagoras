@@ -1,26 +1,45 @@
 import pygame, sys, os, time, string, liblo
 import numpy as np
+from pyo import midiToHz as m2h
 from pygame.locals import *
+
+if len(sys.argv)>1:
+   sensitivity = float(sys.argv[1])
+else:
+   sensitivity = 900.
+   
 
 # define some colors
 white = 255, 255, 255
 red =  255, 0, 0
+yellow = 255, 255, 0
 green = 0, 255, 0
+teal = 0, 255, 255
 blue = 0, 0, 255
+violet = 255, 0, 255
 black = 0,0,0
+colorTable = [green, violet]
 
 # and the alphabet
 alphabet = {}
 for i in range(24):
     alphabet[string.lowercase[i]] = i
 
+# and the frequency bins
+midiNotes = range(36,84) # 48 bins total
+f0 = 44100./4096 # 10.76 hz
+allFreqs = f0*np.arange(100) # 100 is the number of frequencies you send across, currently
+freqBins = []
+for i in range(47): # all but the last one
+    iwhere = np.where((allFreqs>=m2h(midiNotes[i])) & (allFreqs<m2h(midiNotes[i+1])))
+    freqBins.append(iwhere[0])
 
 class RadiatingParticle():
 
     def __init__(self, appSize, direction, color=green, width=0):
         self.appSize = appSize
         self.xy = np.array([float(dim/2) for dim in self.appSize])
-        self.size = 10
+        self.size = 6
         self.color = color
         self.width = width
         self.direction = direction
@@ -66,18 +85,22 @@ class SoundPuddle():
             elif event.type == KEYDOWN:
                 try:
                     spokeIndex = alphabet[event.dict['unicode']]
-                    self.launch(self.spokes[spokeIndex])
+                    self.launch(self.spokes[spokeIndex], color=green)
                 except KeyError:
                     print 'Key unbound'
             else:
                 pass
 
     def handleOSC(self, pathstr, arg, typestr, server, usrData):
-        magnitude = np.array(arg)
-        iwhere = np.where(magnitude > 1000)
-        for i in iwhere[0]:
-            print 'Launching: ', i
-            self.launch(self.spokes[i%24])
+        for i in range(len(freqBins)):
+            total = 0.
+            for j in freqBins[i]:
+                total += arg[j]                
+            if total >= sensitivity:  # this sets the sensitivity
+                print 'Launching: ', i
+                colorIndex = i//24
+                spokeIndex = i%24
+                self.launch(self.spokes[spokeIndex], color=colorTable[colorIndex])
 
     def takeStep(self):
         for particle in self.particles:
@@ -107,9 +130,8 @@ class SoundPuddle():
         pygame.quit()
         sys.exit()
 
-    def launch(self, spoke):
-        self.particles.append(RadiatingParticle(self.size, spoke))
-        print 'nparticles = ', len(self.particles)
+    def launch(self, spoke, color):
+        self.particles.append(RadiatingParticle(self.size, spoke, color=color))
 
 
 if __name__ == '__main__':
