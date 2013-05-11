@@ -30,8 +30,8 @@ midiNotes = range(36,84) # 48 bins total
 f0 = 44100./4096 # 10.76 hz
 allFreqs = f0*np.arange(100) # 100 is the number of frequencies you send across, currently
 freqBins = []
-for i in range(47): # all but the last one
-    iwhere = np.where((allFreqs>=m2h(midiNotes[i])) & (allFreqs<m2h(midiNotes[i+1])))
+for m in midiNotes:
+    iwhere = np.where((allFreqs>=m2h(m-0.5)) & (allFreqs<m2h(m+0.5)))
     freqBins.append(iwhere[0])
 
 class RadiatingParticle():
@@ -39,7 +39,7 @@ class RadiatingParticle():
     def __init__(self, appSize, direction, color=green, width=0):
         self.appSize = appSize
         self.xy = np.array([float(dim/2) for dim in self.appSize])
-        self.size = 6
+        self.size = 5
         self.color = color
         self.width = width
         self.direction = direction
@@ -70,7 +70,7 @@ class SoundPuddle():
         ###
         self.drawLines()
         pygame.display.flip()
-        self.OSCserver = liblo.Server(8000)
+        self.OSCserver = liblo.Server(8666)
         self.OSCserver.add_method(None, None, self.handleOSC)
 
     def drawLines(self):
@@ -96,7 +96,7 @@ class SoundPuddle():
             total = 0.
             for j in freqBins[i]:
                 total += arg[j]                
-            if total >= sensitivity:  # this sets the sensitivity
+            if total >= sensitivity:
                 print 'Launching: ', i
                 colorIndex = i//24
                 spokeIndex = i%24

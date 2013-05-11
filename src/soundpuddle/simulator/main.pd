@@ -1,4 +1,4 @@
-#N canvas 944 555 173 210 10;
+#N canvas 0 54 1440 820 10;
 #X obj 36 35 adc~;
 #X obj 35 86 ave~;
 #X obj 34 134 sendFFT;
