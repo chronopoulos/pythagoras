@@ -33,14 +33,17 @@ class Button
       {
         if (buttonState == HIGH) 
         {
-         Serial.write(up);
+         Serial.print('K');
+         Serial.println(up);
         }
         else {
-         Serial.write(down);
+         Serial.print('K');
+         Serial.println(down);
         }
       }
       else {
-        Serial.write("9"); // to let you know when a bounce would have occurred
+         Serial.print('K');
+         Serial.println('9');
       }
       lastDebounceTime = millis();
       prevState = buttonState;

@@ -17,9 +17,34 @@ s.start()
 
 if 'cuttlefish' in sys.argv:
     print 'SETTING CUTTLEFISH MODE'
-    instrument = PolySynth(FM)
-    instrument.setTonality(Tonality([0,2,4,5,7,9,11]))
-    mapping = {'a':0, 'b':1, 'c':2, 'd':3}
+    instrument = PolySynth(FM, order=24)
+    #instrument.setTonality(Tonality([0,2,4,5,7,9,11]))
+    instrument.setTonality(Tonality(range(12)))
+
+    mapping = {'a':0,
+               'b':1,
+               'c':2,
+               'd':3,
+               'e':4,
+               'f':5,
+               'g':6,
+               'h':7,
+               'i':8,
+               'j':9,
+               'k':10,
+               'l':11,
+               'm':12,
+               'n':13,
+               'o':14,
+               'p':15,
+               'q':16,
+               'r':17,
+               's':18,
+               't':19,
+               'u':20,
+               'v':21,
+               'w':22,
+               'x':23}
 elif 'dundunba' in sys.argv:
     instrument = Sampler(dundunba)
     mapping = {'a':0,
@@ -29,7 +54,7 @@ elif 'dundunba' in sys.argv:
 
 ###
 
-arduino = serial.Serial('/dev/ttyACM0', 9600)
+arduino = serial.Serial('/dev/ttyACM3', 9600)
 while True:
     msg = arduino.readline()
     print msg
@@ -38,6 +63,7 @@ while True:
             instrument.play(mapping[msg[1]], 0.25)
             print 'played: ', msg[1:]
         except KeyError:
+	    #pass
             print 'Unmapped: ', msg
     elif msg[0]=='N':
         instrument.handleKnob(float(msg[1:]))
