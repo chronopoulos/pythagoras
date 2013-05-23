@@ -95,7 +95,7 @@ class JamServer():
          try:
             self.players[pathlist[0]].handleMsg(pathlist, arg)
          except KeyError:
-            print 'JamServer, routeByName: Player not found!'
+            print 'JamServer, routeByName: ', pathlist[0], ' Player not found!!'
       
    def updateMetro(self, bpm):
       self.metro.setTime(15./bpm)
@@ -183,7 +183,7 @@ if __name__ == '__main__':
       verbose = False
 
    broadcast = liblo.Address(9002)
-   #broadcast = liblo.Address('192.168.1.133', 9002)
+   #broadcast = liblo.Address('192.168.1.137', 9002)
 
    # distribute global variables
    for module in modules:
@@ -202,6 +202,7 @@ if __name__ == '__main__':
    jamserver.addPlayer(Player('FM_lo', ix.Sequencer(inst.PolySynth(voice=synths.FM, key=24), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_hi', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=60), seqVol=0.25, nnotes=16)))
    jamserver.addPlayer(Player('additive_lo', ix.Sequencer(inst.PolySynth(voice=synths.Additive, key=36), seqVol=0.25, nnotes=16)))
+   jamserver.addPlayer(Player('puddle', ix.Sequencer(inst.PolySynth(voice=synths.Sine, key=48), seqVol=0.25, nnotes=24)))
    jamserver.addPlayer(Player('drone', ix.DroneFace(36, verbose=verbose)))
    jamserver.addPlayer(Player('toner', ix.Toner()))
 

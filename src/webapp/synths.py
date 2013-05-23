@@ -37,6 +37,35 @@ class Square():
       #  they're being called more often than they need to be
       self.trig.play()
 
+class Sine():
+   """
+   Sine wave synthesizer.
+   """
+
+   def __init__(self):
+      self.trig = pyo.Trig()
+      decaytable = pyo.LinTable(list=[(0,0), (100, 1.0), (8191, 0.0)])
+      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.3, mul=.25)
+      self.osc = pyo.Sine(freq=[0.,0.], mul=self.env[0])
+      self.output = self.osc.out()
+
+   def setFreq(self, f):
+      self.osc.setFreq([f,f])
+
+   def setAmp(self, amp):
+      self.env.setMul(amp)
+
+   def setDur(self, dur):
+      self.env.setDur(dur)
+
+   def play(self, f, amp, dur=0.5):
+      self.setFreq(f)
+      self.setAmp(amp)
+      self.setDur(dur)
+      # TODO: make these setter methods more efficient
+      #  they're being called more often than they need to be
+      self.trig.play()
+
 class Additive():
    """
    Additive synthesizer.
