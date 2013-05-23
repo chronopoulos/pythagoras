@@ -31,40 +31,6 @@ class Droplet():
         self.trig.play()
 
 
-class Square():
-   """
-   Square wave synthesizer.
-   """
-
-   def __init__(self):
-      self.trig = pyo.Trig()
-      decaytable = pyo.LinTable(list=[(0, 1.0), (8191, 0.0)])
-      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=0)
-      waveform = pyo.SquareTable()
-      self.freq = 200
-      self.osc = pyo.Osc(waveform, freq=self.freq, mul=self.env.mix(2))
-      self.output = self.osc.out()
-
-   def setFreq(self, f):
-      self.freq = f
-      self.osc.setFreq(self.freq)
-
-   def setAmp(self, amp):
-      self.env.setMul(amp)
-
-   def setDur(self, dur):
-      self.env.setDur(dur)
-
-   def play(self, f, amp, dur=0.9):
-      self.setFreq(f)
-      self.setAmp(amp)
-      self.setDur(dur)
-      # TODO: make these setter methods more efficient
-      #  they're being called more often than they need to be
-      #  idea: use *args to determine whether to call the setters
-      self.trig.play()
-
-
 class Spoke():
    """
    Spoke class, a voice for the soundpuddle
@@ -80,7 +46,67 @@ class Spoke():
    def play(self):
       self.trig.play()
 
-   
+
+class Square():
+   """
+   Square wave synthesizer.
+   """
+
+   def __init__(self):
+      self.trig = pyo.Trig()
+      decaytable = pyo.LinTable(list=[(0, 1.0), (8191, 0.0)])
+      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=.25)
+      waveform = pyo.SquareTable()
+      self.osc = pyo.Osc(waveform, freq=[0.,0.], mul=self.env[0])
+      self.output = self.osc.out()
+
+   def setFreq(self, f):
+      self.osc.setFreq([f,f])
+
+   def setAmp(self, amp):
+      self.env.setMul(amp)
+
+   def setDur(self, dur):
+      self.env.setDur(dur)
+
+   def play(self, f, amp, dur=0.5):
+      self.setFreq(f)
+      self.setAmp(amp)
+      self.setDur(dur)
+      # TODO: make these setter methods more efficient
+      #  they're being called more often than they need to be
+      self.trig.play()
+
+
+class Sine():
+   """
+   Sine wave synthesizer.
+   """
+
+   def __init__(self):
+      self.trig = pyo.Trig()
+      decaytable = pyo.LinTable(list=[(0,0), (100, 1.0), (8191, 0.0)])
+      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.3, mul=.25)
+      self.osc = pyo.Sine(freq=[0.,0.], mul=self.env[0])
+      self.output = self.osc.out()
+
+   def setFreq(self, f):
+      self.osc.setFreq([f,f])
+
+   def setAmp(self, amp):
+      self.env.setMul(amp)
+
+   def setDur(self, dur):
+      self.env.setDur(dur)
+
+   def play(self, f, amp, dur=0.5):
+      self.setFreq(f)
+      self.setAmp(amp)
+      self.setDur(dur)
+      # TODO: make these setter methods more efficient
+      #  they're being called more often than they need to be
+      self.trig.play()
+
 
 class Additive():
    """
@@ -89,11 +115,11 @@ class Additive():
 
    def __init__(self):
       self.trig = pyo.Trig()
-      decaytable = pyo.LinTable(list=[(0, 1.0), (8191, 0.0)])
-      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=.25)
+      decaytable = pyo.LinTable(list=[(0,0), (100, 1.0), (8191, 0.0)])
+      self.env = pyo.TrigEnv(self.trig, table=decaytable, dur=0.6, mul=[0,0])
       self.spectrum = [1.]+[0.]*15  # 16 total
       self.waveform = pyo.HarmTable(self.spectrum)
-      self.osc = pyo.Osc(self.waveform, freq=[0.,0.], mul=self.env[0])
+      self.osc = pyo.Osc(self.waveform, freq=[0.,0.], mul=self.env)
       self.filter = pyo.Biquad(self.osc, freq=[300.,300.], type=2, q=2.)
       self.output = self.filter.out()
 
@@ -103,6 +129,7 @@ class Additive():
       self.filter.setQ(1.+y*3.)
 
    def handleRow2(self, slider, value):
+      if debug: print 'Additive, handleRow2: ', slider, value
       harmonic = slider
       coeff = value
       self.updateSpectrum(harmonic, coeff)
@@ -142,14 +169,11 @@ class FM():
 
    def __init__(self):
       self.trig = pyo.Trig()
-      """
-      self.envTableList = [(0,.5)] + [(i*8192/15,1./(i+1)) for i in range(15)]
+      self.envTableList = [(i*8192/15,1./(i+1)) for i in range(16)]
+      self.envTableList[0] = (0,0)   # finite attack
       self.envTable = pyo.CurveTable(self.envTableList)
-      self.env = pyo.TrigEnv(self.trig, table=self.envTable, dur=0.6, mul=0.)
-      """
-      self.env = pyo.Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=2, mul=.5)
-      self.fm = pyo.FM(carrier=[0.,0.], mul=self.env[0])
-      self.output = self.fm.out()
+      self.env = pyo.TrigEnv(self.trig, table=self.envTable, dur=0.6, mul=[0.,0.])
+      self.fm = pyo.FM(carrier=[0.,0.], mul=self.env, ratio=1, index=4).out()
 
    def setEnvTableList(self, timestep, value):
       self.envTableList[timestep] = (timestep*8192/15,value)
@@ -166,35 +190,38 @@ class FM():
    def setDur(self, dur):
       self.env.setDur(dur)
 
-   def setRatio(self, ratio):
-      if debug: print 'FM, setRatio: ', ratio
+   def handleXY(self, x, y):
+      if debug: print 'FM, handleXY: ', x, y
+      ratio = int(x*10)+1
+      index = 10*y
       self.fm.setRatio(ratio)
-
-   def setIndex(self, index):
-      if debug: print 'FM, setIndex: ', index
       self.fm.setIndex(index)
 
    def handleRow2(self, slider, value):
+      if debug: print 'FM, handleRow2: ', slider, value
       self.setEnvTableList(slider, value)
 
    def handleDFT(self, state):
       if state==1:
          self.updateEnvTable()
 
-   def play(self, f, amp, dur=0.5):
+   def handleKnobA(self, value):
+      #print 'FM, handleKnob', value
+      self.fm.setIndex(value/100)
+
+   def handleKnobB(self, value):
+      #print 'FM, handleKnob', value
+      self.fm.setRatio(value/1000)
+
+   def handleKnobC(self, value):
+      pass
+
+   def play(self, f, amp, dur=1.0):
       self.setFreq(f)
       self.setAmp(amp)
       self.setDur(dur)
       # TODO: make these setter methods more efficient
       #  they're being called more often than they need to be
-      # self.trig.play()
-      self.env.play()
+      self.trig.play()
 
-
-if __name__=='__main__':
-
-   audioserver = pyo.Server().boot()
-   audioserver.start()
-   fm = FM().play(300,1)
-   audioserver.gui(locals())
 

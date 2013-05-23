@@ -19,7 +19,7 @@ class Poly():
       self.freeTrigs = []
       for voice in self.voices:
          amplitude = pyo.Follower(voice.output[0])
-         self.freeTrigs.append(pyo.Thresh(amplitude, 0.01, dir=1))
+         self.freeTrigs.append(pyo.Thresh(amplitude, 0.01, dir=1)) # set the threshold lower?
       self.callbacks = []
       for vn in range(self.nvoices):
          self.callbacks.append(pyo.TrigFunc(self.freeTrigs[vn], self.freeVoice, arg=vn))

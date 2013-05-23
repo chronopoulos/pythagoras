@@ -24,8 +24,12 @@ class Sampler():
       self.notes[note].setMul(amp)
       self.notes[note].out()
 
+   def handleKnob(self, value):
+      pass
+
    def setTonality(self, tonality):
       pass
+
 
 class PolySynth():
    """
@@ -42,21 +46,6 @@ class PolySynth():
    def setTonality(self, tonality):
       self.tonality = tonality
 
-   def handleXY(self, x, y):
-      if debug: print 'PolySynth, handleXY: ', x, y
-      for voice in self.voices:
-         voice.handleXY(x,y)
-
-   def handleRow2(self, slider, value):
-      if debug: print 'PolySynth, handleRow2: ', slider, value
-      for voice in self.voices:
-         voice.handleRow2(slider, value)
-
-   def handleDFT(self, state):
-      if debug: print 'PolySynth, handleDFT: ', state
-      for voice in self.voices:
-         voice.handleDFT(state)
-
    def handleKnob(self, value):
       print 'polysynth, handleKnob', value
       for voice in self.voices:
@@ -65,4 +54,36 @@ class PolySynth():
    def play(self, note, amp):
       f = pyo.midiToHz(self.key+self.tonality.request(note))
       vn = self.poly.request()
+      print vn
       self.voices[vn].play(f, amp)
+
+class BrutePoly():
+
+   def __init__(self, voice=synths.FM, order=24, key=60):
+      self.voices = []
+      for i in range(order):
+         self.voices.append(voice())
+      self.key = key
+
+   def setTonality(self, tonality):
+      self.tonality = tonality
+
+   def handleKnobA(self, value):
+      #print 'polysynth, handleKnob', value
+      for voice in self.voices:
+         voice.handleKnobA(value)
+
+   def handleKnobB(self, value):
+      #print 'polysynth, handleKnob', value
+      for voice in self.voices:
+         voice.handleKnobB(value)
+
+   def handleKnobC(self, value):
+      #print 'polysynth, handleKnob', value
+      for voice in self.voices:
+         voice.handleKnobC(value)
+
+   def play(self, note, amp):
+      f = pyo.midiToHz(self.key+self.tonality.request(note))
+      self.voices[note].play(f, amp)
+
