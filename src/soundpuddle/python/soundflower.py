@@ -29,11 +29,20 @@ class SoundFlower():
     def __init__(self):
         self.instruments = []
 
-        self.brutepoly = inst.BrutePoly(order=6, key=60)
-        self.brutepoly.setTonality(Tonality([0,2,4,7,9]))
-        self.instruments.append(self.brutepoly)
+        self.FMchromatic = inst.BrutePoly(order=24, key=30)
+        self.FMchromatic.setTonality(Tonality(range(12)))
+        self.instruments.append(self.FMchromatic)
 
-        self.rhodes = inst.Sampler(packs.rhodes)
+        """
+        self.FMpentatonic = inst.BrutePoly(order=6, key=60)
+        self.FMpentatonic.setTonality(Tonality([0,2,4,7,9]))
+        self.instruments.append(self.FMpentatonic)
+        """
+
+        self.tr909 = inst.Sampler(packs.tr909, amp=1.5)
+        self.instruments.append(self.tr909)
+
+        self.rhodes = inst.Sampler(packs.rhodes, amp=1.5)
         self.instruments.append(self.rhodes)
 
         self.koto = inst.Sampler(packs.koto)
@@ -41,6 +50,8 @@ class SoundFlower():
 
         self.chimes = inst.Sampler(packs.chimes)
         self.instruments.append(self.chimes)
+
+        self.myVol = 1.
 
         self.mapping0 = {'a':(0,0),
                        'b':(0,1),
@@ -67,46 +78,54 @@ class SoundFlower():
                        'w':(0,22),
                        'x':(0,23)}
 
-        self.mapping1 = {'a':(0,0),
-                       'b':(0,1),
-                       'c':(0,2),
-                       'd':(0,3),
-                       'e':(0,4),
-                       'f':(0,5),
-                       'g':(1,0),
-                       'h':(1,1),
-                       'i':(1,2),
-                       'j':(1,3),
-                       'k':(1,4),
-                       'l':(1,5),
-                       'm':(2,0),
-                       'n':(2,1),
-                       'o':(2,2),
-                       'p':(2,3),
-                       'q':(2,4),
-                       'r':(2,5),
-                       's':(3,0),
-                       't':(3,1),
-                       'u':(3,2),
-                       'v':(3,3),
-                       'w':(3,4),
-                       'x':(3,5)}
+        self.mapping1 = {'a':(1,0),
+                       'b':(1,1),
+                       'c':(1,2),
+                       'd':(1,3),
+                       'e':(1,4),
+                       'f':(1,5),
+                       'g':(2,0),
+                       'h':(2,1),
+                       'i':(2,2),
+                       'j':(2,3),
+                       'k':(2,4),
+                       'l':(2,5),
+                       'm':(3,0),
+                       'n':(3,1),
+                       'o':(3,2),
+                       'p':(3,3),
+                       'q':(3,4),
+                       'r':(3,5),
+                       's':(4,0),
+                       't':(4,1),
+                       'u':(4,2),
+                       'v':(4,3),
+                       'w':(4,4),
+                       'x':(4,5)}
 
         self.mapping = self.mapping1
 
     def play(self, letter):
         i,n = self.mapping[letter]
-        self.instruments[i].play(n, 0.25)
+        self.instruments[i].play(n, 0.25*self.myVol)
 
     def handleKnobA(self, value):
-        self.brutepoly.handleKnobA(value)
+        self.FMchromatic.handleKnobA(value)
+        #self.FMpentatonic.handleKnobA(value)
 
     def handleKnobB(self, value):
-        pass
+        self.myVol = value/1000.
 
     def handleKnobC(self, value):
         pass
 
+    def handleSelector(self, letter):
+        if letter=='a':
+            self.mapping = self.mapping0
+            print 'Mode 0 selected'
+        elif letter=='b':
+            self.mapping = self.mapping1
+            print 'Mode 1 selected'
 ##
 
 soundflower = SoundFlower()
@@ -126,4 +145,6 @@ while True:
         soundflower.handleKnobB(float(msg[1:]))
     elif msg[0]=='C':
         soundflower.handleKnobC(float(msg[1:]))
+    elif msg[0]=='S':
+        soundflower.handleSelector(msg[1])
 

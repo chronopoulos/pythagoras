@@ -10,7 +10,7 @@ class Sampler():
    Sampler class
    """
 
-   def __init__(self, pack):
+   def __init__(self, pack, amp = 1.):
       """
       Pack should simply be a list of filenames.
       pyo.SfPlayer objects are created upon instantiation.
@@ -19,10 +19,14 @@ class Sampler():
       self.notes = []
       for filename in pack:
          self.notes.append(pyo.SfPlayer(filename, speed=[1,1]))
+      self.Amp = amp
 
    def play(self, note, amp):
-      self.notes[note].setMul(amp)
+      self.notes[note].setMul(amp*self.Amp)
       self.notes[note].out()
+
+   def setAmp(self, amp):
+      self.Amp = amp
 
    def handleKnob(self, value):
       pass
