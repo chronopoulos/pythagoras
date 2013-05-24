@@ -21,7 +21,10 @@ else:
 
 # Start Audio Server
 
-s = pyo.Server().boot()
+if 'jack' in sys.argv:
+    s = pyo.Server(audio='jack').boot()
+else:
+    s = pyo.Server().boot()
 s.start()
 
 class SoundFlower():
