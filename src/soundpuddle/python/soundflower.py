@@ -54,6 +54,15 @@ class SoundFlower():
         self.chimes = inst.Sampler(packs.chimes)
         self.instruments.append(self.chimes)
 
+        self.tr606 = inst.Sampler(packs.tr606, amp=1.5)
+        self.instruments.append(self.tr606)
+
+        self.tr707 = inst.Sampler(packs.tr707, amp=1.5)
+        self.instruments.append(self.tr707)
+
+        self.tr808 = inst.Sampler(packs.tr808, amp=1.5)
+        self.instruments.append(self.tr808)
+
         self.myVol = 1.
 
         self.mapping0 = {'a':(0,0),
@@ -106,6 +115,31 @@ class SoundFlower():
                        'w':(4,4),
                        'x':(4,5)}
 
+        self.mapping2 = {'a':(1,0),
+                       'b':(1,1),
+                       'c':(1,2),
+                       'd':(1,3),
+                       'e':(1,4),
+                       'f':(1,5),
+                       'g':(5,0),
+                       'h':(5,1),
+                       'i':(5,2),
+                       'j':(5,3),
+                       'k':(5,4),
+                       'l':(5,5),
+                       'm':(6,0),
+                       'n':(6,1),
+                       'o':(6,2),
+                       'p':(6,3),
+                       'q':(6,4),
+                       'r':(6,5),
+                       's':(7,0),
+                       't':(7,1),
+                       'u':(7,2),
+                       'v':(7,3),
+                       'w':(7,4),
+                       'x':(7,5)}
+
         self.mapping = self.mapping1
 
     def play(self, letter):
@@ -129,6 +163,9 @@ class SoundFlower():
         elif letter=='b':
             self.mapping = self.mapping1
             print 'Mode 1 selected'
+        elif letter=='c':
+            self.mapping = self.mapping2
+            print 'Mode 2 selected'
 ##
 
 soundflower = SoundFlower()
