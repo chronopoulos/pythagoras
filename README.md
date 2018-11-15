@@ -27,7 +27,5 @@ $ python pythagoras.py jack
 
 If you want to use the default sample packs defined in samplepacks.py, they are available here:
 
-https://dl.dropbox.com/u/3020732/samples.tar.gz
-
 ____
 Chris Chronopoulos, 2013-03-19
